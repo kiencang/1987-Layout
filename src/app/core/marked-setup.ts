@@ -14,12 +14,15 @@ export function getConfiguredMarked() {
     marked.use(markedFootnote());
     marked.use({
       renderer: {
-        heading(token) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        heading(token: any) {
           // Token is just a single object in marked v12+
           // we use text and tokens to parse inner html
           let parsedText = '';
-          if (typeof this.parser?.parseInline === 'function') {
-            parsedText = this.parser.parseInline(token.tokens || []);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const parser = (this as any).parser;
+          if (typeof parser?.parseInline === 'function') {
+            parsedText = parser.parseInline(token.tokens || []);
           } else {
             parsedText = token.text;
           }
@@ -35,7 +38,8 @@ export function getConfiguredMarked() {
           }
           return `<h${token.depth} id="${id}">${parsedText}</h${token.depth}>\n`;
         },
-        image(token) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        image(token: any) {
           let href = token.href;
           if (typeof window !== 'undefined' && window.__SILA_IMAGES__ && window.__SILA_IMAGES__[href]) {
              href = window.__SILA_IMAGES__[href];

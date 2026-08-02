@@ -46,11 +46,14 @@ import { GeminiClient } from '../../../core/gemini';
 import { PRINT_PDF_STYLES } from '../../../core/html-export.util';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { renderPdfToPageImages, restoreImagePlaceholders } from '../../../core/image-processor.util';
+import { getConfiguredMarked } from '../../../core/marked-setup';
+
+import { SafeHtmlComponent } from '../../../shared/components/safe-html.component';
 
 @Component({
   selector: 'app-chapter-item',
   standalone: true,
-  imports: [MatIconModule, DatePipe, TranslatingSkeletonComponent],
+  imports: [MatIconModule, DatePipe, TranslatingSkeletonComponent, SafeHtmlComponent],
   host: {
     class: 'block',
     '(click)': 'onLinkClick($event)'
@@ -262,7 +265,7 @@ import { renderPdfToPageImages, restoreImagePlaceholders } from '../../../core/i
                     }
                   </div>
                 } @else if (chapter().originalText) {
-                  <div class="prose prose-sm md:prose-base max-w-none text-zinc-800" [innerHTML]="renderedOriginalHtml()"></div>
+                  <app-safe-html [htmlContent]="renderedOriginalHtml()" class="w-full text-zinc-800" />
                 } @else {
                   <div class="flex flex-col items-center justify-center py-12 text-zinc-400">
                     <mat-icon class="!w-10 !h-10 !text-[40px] text-zinc-300 mb-2">picture_as_pdf</mat-icon>
@@ -275,7 +278,7 @@ import { renderPdfToPageImages, restoreImagePlaceholders } from '../../../core/i
                     <span class="text-sm">Đây là nội dung bản quyền / metadata, nội dung sẽ được giữ nguyên bản gốc khi xuất file.</span>
                   </div>
                 } @else if (chapter().translatedText) {
-                  <div class="prose prose-sm md:prose-base max-w-none text-zinc-900" [innerHTML]="renderedTranslatedHtml()"></div>
+                  <app-safe-html [htmlContent]="renderedTranslatedHtml()" class="w-full text-zinc-900" />
                 } @else if (chapter().status === 'translating') {
                   <app-translating-skeleton />
                 } @else {
@@ -311,9 +314,9 @@ import { renderPdfToPageImages, restoreImagePlaceholders } from '../../../core/i
             </div>
 
             <!-- Fullscreen HTML Content -->
-            <div class="prose prose-zinc max-w-none transition-all duration-300 leading-relaxed" 
-                 [style.font-family]="getFontFamily(readerStore.prefs().fontFamily)"
-                 [innerHTML]="renderedTranslatedHtml()"></div>
+            <app-safe-html [htmlContent]="renderedTranslatedHtml()" 
+                           [fontFamily]="getFontFamily(readerStore.prefs().fontFamily)" 
+                           class="w-full text-zinc-900" />
 
             <!-- Navigation between chapters -->
             <div class="mt-24 pt-8 border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-2xl mx-auto pb-12">
@@ -383,9 +386,9 @@ import { renderPdfToPageImages, restoreImagePlaceholders } from '../../../core/i
                     }
                   </div>
                 } @else {
-                  <div class="prose prose-zinc max-w-none transition-all duration-300 leading-relaxed"
-                       [style.font-family]="getFontFamily(readerStore.prefs().fontFamily)"
-                       [innerHTML]="renderedOriginalHtml()"></div>
+                  <app-safe-html [htmlContent]="renderedOriginalHtml()"
+                                 [fontFamily]="getFontFamily(readerStore.prefs().fontFamily)"
+                                 class="w-full text-zinc-900" />
                 }
               </div>
             </div>
@@ -396,9 +399,9 @@ import { renderPdfToPageImages, restoreImagePlaceholders } from '../../../core/i
                 <h4 class="text-xs font-semibold uppercase tracking-wider mb-8 text-zinc-400 text-center flex items-center justify-center gap-2">
                    <mat-icon class="!w-4 !h-4 !text-[16px]">translate</mat-icon> Bản dịch
                 </h4>
-                <div class="prose prose-zinc max-w-none transition-all duration-300 leading-relaxed"
-                     [style.font-family]="getFontFamily(readerStore.prefs().fontFamily)"
-                     [innerHTML]="renderedTranslatedHtml()"></div>
+                <app-safe-html [htmlContent]="renderedTranslatedHtml()"
+                               [fontFamily]="getFontFamily(readerStore.prefs().fontFamily)"
+                               class="w-full text-zinc-900" />
               </div>
             </div>
           </div>
@@ -425,7 +428,7 @@ import { renderPdfToPageImages, restoreImagePlaceholders } from '../../../core/i
             </div>
             
             <div class="p-6 overflow-y-auto flex-1 bg-white">
-               <div class="prose prose-sm max-w-none text-zinc-700 w-full [&>table]:w-full [&>table]:min-w-full [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-left [&_th]:p-3 [&_th]:border-y [&_th]:border-zinc-200 [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-100" [innerHTML]="parsedCustomGlossary()"></div>
+               <app-safe-html [htmlContent]="parsedCustomGlossary()" class="w-full text-zinc-700" />
             </div>
           </div>
         </div>
@@ -447,7 +450,7 @@ import { renderPdfToPageImages, restoreImagePlaceholders } from '../../../core/i
               </button>
             </div>
             <div class="p-6 overflow-y-auto flex-1 bg-white">
-               <div class="prose prose-sm max-w-none text-zinc-700" [innerHTML]="parsedActiveSummary()"></div>
+               <app-safe-html [htmlContent]="parsedActiveSummary()" class="w-full text-zinc-700" />
             </div>
           </div>
         </div>
@@ -469,7 +472,7 @@ import { renderPdfToPageImages, restoreImagePlaceholders } from '../../../core/i
               </button>
             </div>
             <div class="p-6 overflow-y-auto flex-1 bg-white">
-               <div class="prose prose-sm max-w-none text-zinc-700" [innerHTML]="parsedActiveContextSummary()"></div>
+               <app-safe-html [htmlContent]="parsedActiveContextSummary()" class="w-full text-zinc-700" />
             </div>
           </div>
         </div>
@@ -492,7 +495,7 @@ import { renderPdfToPageImages, restoreImagePlaceholders } from '../../../core/i
             </div>
             <div class="p-6 overflow-y-auto flex-1 bg-white">
                @if (parsedCustomInstructionsSnapshot()) {
-                 <div class="prose prose-sm max-w-none text-zinc-700" [innerHTML]="parsedCustomInstructionsSnapshot()"></div>
+                 <app-safe-html [htmlContent]="parsedCustomInstructionsSnapshot()" class="w-full text-zinc-700" />
                } @else {
                  <div class="text-zinc-500 italic text-sm text-center py-8 bg-zinc-50 rounded-lg">Không có dữ liệu chi tiết.</div>
                }
@@ -518,7 +521,7 @@ import { renderPdfToPageImages, restoreImagePlaceholders } from '../../../core/i
             </div>
             <div class="p-6 overflow-y-auto flex-1 bg-white">
                @if (parsedPronounSnapshot()) {
-                 <div class="prose prose-sm max-w-none text-zinc-700 w-full [&>table]:w-full [&>table]:min-w-full [&_th]:bg-zinc-50 [&_th]:font-semibold [&_th]:text-left [&_th]:p-3 [&_th]:border-y [&_th]:border-zinc-200 [&_td]:p-3 [&_td]:border-b [&_td]:border-zinc-100" [innerHTML]="parsedPronounSnapshot()"></div>
+                 <app-safe-html [htmlContent]="parsedPronounSnapshot()" class="w-full text-zinc-700" />
                } @else {
                  <div class="text-zinc-500 italic text-sm text-center py-8 bg-zinc-50 rounded-lg">Không có dữ liệu chi tiết cho bảng đại từ này.</div>
                }
@@ -1106,32 +1109,19 @@ ${processed}
     const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
     let bodyContent = bodyMatch ? bodyMatch[1] : html;
 
-    // Extract all <style>...</style> blocks
+    // Extract all <style>...</style> blocks (Shadow DOM will scope them automatically!)
     const styleMatches = html.match(/<style[^>]*>([\s\S]*?)<\/style>/gi) || [];
-    let cleanedStyles = '';
+    const styles = styleMatches.join('\n');
 
-    for (const styleBlock of styleMatches) {
-      let cssText = styleBlock.replace(/<\/?style[^>]*>/gi, '');
-      // Scope body, html, :root selectors so they don't pollute document.body
-      cssText = cssText.replace(/\b(body|html|:root)\b/gi, '.rendered-html-scope');
-      // Strip max-width and margin auto from the scoped selector to prevent narrowing
-      cssText = cssText.replace(/\.rendered-html-scope\s*\{([^}]*)\}/gi, (match, p1) => {
-        let rules = p1;
-        rules = rules.replace(/max-width\s*:[^;]+;?/gi, '');
-        rules = rules.replace(/margin\s*:[^;]+;?/gi, '');
-        return `.rendered-html-scope { ${rules} }`;
-      });
-      cleanedStyles += `<style>${cssText}</style>`;
-    }
-
-    // Strip DOCTYPE, html, head, body wrapper tags
+    // Strip DOCTYPE, html, head, body wrapper tags & scripts
     bodyContent = bodyContent
       .replace(/<!DOCTYPE[^>]*>/gi, '')
       .replace(/<\/?html[^>]*>/gi, '')
       .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, '')
-      .replace(/<\/?body[^>]*>/gi, '');
+      .replace(/<\/?body[^>]*>/gi, '')
+      .replace(/<script[\s\S]*?<\/script>/gi, '');
 
-    return `<div class="rendered-html-scope w-full max-w-none">${cleanedStyles}${bodyContent}</div>`;
+    return `${styles}${bodyContent}`;
   }
 
   renderHtml(text: string | undefined): SafeHtml | string {
@@ -1156,74 +1146,14 @@ ${processed}
       return this.sanitizer.bypassSecurityTrustHtml(cleaned);
     }
     
-    // Parse Markdown tables before paragraph splitting
-    const tablePlaceholders: string[] = [];
-    processedText = processedText.replace(/(?:(?:\|.*(?:\r?\n|\r))+)/g, (match) => {
-      const lines = match.trim().split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-      if (lines.length < 2) return match;
-
-      const isDivider = /^\|?\s*:?-+:?\s*(?:\|\s*:?-+:?\s*)+\|?$/.test(lines[1]);
-      if (!isDivider) return match;
-
-      const parseRow = (line: string) => {
-        let cleaned = line;
-        if (cleaned.startsWith('|')) cleaned = cleaned.slice(1);
-        if (cleaned.endsWith('|')) cleaned = cleaned.slice(0, -1);
-        return cleaned.split('|').map(cell => cell.trim());
-      };
-
-      const headerCells = parseRow(lines[0]);
-      const bodyLines = lines.slice(2);
-
-      let tableHtml = '<div class="overflow-x-auto my-4"><table class="w-full border-collapse border border-zinc-200 text-sm"><thead><tr class="bg-zinc-100/80 text-zinc-800 font-semibold">';
-      for (const h of headerCells) {
-        tableHtml += `<th class="border border-zinc-200 px-3.5 py-2.5 text-left font-semibold">${h}</th>`;
-      }
-      tableHtml += '</tr></thead><tbody class="divide-y divide-zinc-200 bg-white">';
-
-      for (const bLine of bodyLines) {
-        if (!bLine.includes('|')) continue;
-        const cells = parseRow(bLine);
-        tableHtml += '<tr class="hover:bg-zinc-50 transition-colors">';
-        for (let i = 0; i < headerCells.length; i++) {
-          const cellValue = cells[i] !== undefined ? cells[i] : '';
-          tableHtml += `<td class="border border-zinc-200 px-3.5 py-2 text-zinc-700 leading-relaxed">${cellValue}</td>`;
-        }
-        tableHtml += '</tr>';
-      }
-
-      tableHtml += '</tbody></table></div>';
-      const idx = tablePlaceholders.length;
-      tablePlaceholders.push(tableHtml);
-      return `\n\n__TABLE_PLACEHOLDER_${idx}__\n\n`;
-    });
-
-    // Convert Markdown images: ![alt](url) -> <img src="url" alt="alt" class="max-w-full h-auto rounded-lg mx-auto my-4 shadow-sm" />
-    processedText = processedText.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg mx-auto my-4 shadow-sm" />');
-
-    // Convert Markdown links: [text](url) -> <a href="url" class="text-blue-600 hover:underline">$1</a>
-    processedText = processedText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:underline" target="_blank">$1</a>');
-
-    // Convert Markdown bold: **text** -> <strong>text</strong>
-    processedText = processedText.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-
-    // Convert Markdown italic: *text* -> <em>text</em>
-    processedText = processedText.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-
-    let html = processedText.split(/\n\n+/).map(p => {
-      const trimmed = p.trim();
-      if (trimmed.startsWith('__TABLE_PLACEHOLDER_') && trimmed.endsWith('__')) {
-        return trimmed;
-      }
-      return `<p class="mb-4">${p.replace(/\n/g, '<br>')}</p>`;
-    }).join('');
-
-    tablePlaceholders.forEach((tHtml, idx) => {
-      html = html.replace(`<p class="mb-4">__TABLE_PLACEHOLDER_${idx}__</p>`, tHtml)
-                 .replace(`__TABLE_PLACEHOLDER_${idx}__`, tHtml);
-    });
-
-    return this.sanitizer.bypassSecurityTrustHtml(html);
+    try {
+      const markedInstance = getConfiguredMarked();
+      const rawHtml = markedInstance.parse(processedText) as string;
+      return this.sanitizer.bypassSecurityTrustHtml(rawHtml);
+    } catch (e) {
+      console.warn('Marked parse failed:', e);
+      return this.sanitizer.bypassSecurityTrustHtml(processedText);
+    }
   }
 
   onLinkClick(event: MouseEvent) {
