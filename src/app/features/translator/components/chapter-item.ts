@@ -1156,6 +1156,48 @@ ${processed}
       return this.sanitizer.bypassSecurityTrustHtml(cleaned);
     }
     
+    // Parse Markdown tables before paragraph splitting
+    const tablePlaceholders: string[] = [];
+    processedText = processedText.replace(/(?:(?:\|.*(?:\r?\n|\r))+)/g, (match) => {
+      const lines = match.trim().split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      if (lines.length < 2) return match;
+
+      const isDivider = /^\|?\s*:?-+:?\s*(?:\|\s*:?-+:?\s*)+\|?$/.test(lines[1]);
+      if (!isDivider) return match;
+
+      const parseRow = (line: string) => {
+        let cleaned = line;
+        if (cleaned.startsWith('|')) cleaned = cleaned.slice(1);
+        if (cleaned.endsWith('|')) cleaned = cleaned.slice(0, -1);
+        return cleaned.split('|').map(cell => cell.trim());
+      };
+
+      const headerCells = parseRow(lines[0]);
+      const bodyLines = lines.slice(2);
+
+      let tableHtml = '<div class="overflow-x-auto my-4"><table class="w-full border-collapse border border-zinc-200 text-sm"><thead><tr class="bg-zinc-100/80 text-zinc-800 font-semibold">';
+      for (const h of headerCells) {
+        tableHtml += `<th class="border border-zinc-200 px-3.5 py-2.5 text-left font-semibold">${h}</th>`;
+      }
+      tableHtml += '</tr></thead><tbody class="divide-y divide-zinc-200 bg-white">';
+
+      for (const bLine of bodyLines) {
+        if (!bLine.includes('|')) continue;
+        const cells = parseRow(bLine);
+        tableHtml += '<tr class="hover:bg-zinc-50 transition-colors">';
+        for (let i = 0; i < headerCells.length; i++) {
+          const cellValue = cells[i] !== undefined ? cells[i] : '';
+          tableHtml += `<td class="border border-zinc-200 px-3.5 py-2 text-zinc-700 leading-relaxed">${cellValue}</td>`;
+        }
+        tableHtml += '</tr>';
+      }
+
+      tableHtml += '</tbody></table></div>';
+      const idx = tablePlaceholders.length;
+      tablePlaceholders.push(tableHtml);
+      return `\n\n__TABLE_PLACEHOLDER_${idx}__\n\n`;
+    });
+
     // Convert Markdown images: ![alt](url) -> <img src="url" alt="alt" class="max-w-full h-auto rounded-lg mx-auto my-4 shadow-sm" />
     processedText = processedText.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg mx-auto my-4 shadow-sm" />');
 
@@ -1168,7 +1210,19 @@ ${processed}
     // Convert Markdown italic: *text* -> <em>text</em>
     processedText = processedText.replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
-    const html = processedText.split(/\n\n+/).map(p => `<p class="mb-4">${p.replace(/\n/g, '<br>')}</p>`).join('');
+    let html = processedText.split(/\n\n+/).map(p => {
+      const trimmed = p.trim();
+      if (trimmed.startsWith('__TABLE_PLACEHOLDER_') && trimmed.endsWith('__')) {
+        return trimmed;
+      }
+      return `<p class="mb-4">${p.replace(/\n/g, '<br>')}</p>`;
+    }).join('');
+
+    tablePlaceholders.forEach((tHtml, idx) => {
+      html = html.replace(`<p class="mb-4">__TABLE_PLACEHOLDER_${idx}__</p>`, tHtml)
+                 .replace(`__TABLE_PLACEHOLDER_${idx}__`, tHtml);
+    });
+
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 

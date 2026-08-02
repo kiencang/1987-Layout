@@ -114,7 +114,7 @@ export class GeminiClient {
     }
   }
 
-  async filterGlossary(text: string, glossaryTable: string): Promise<{ text: string; usedCount: number; totalCount: number }> {
+  async filterGlossary(text: string, glossaryTable: string, isPdf = false, pdfBase64?: string): Promise<{ text: string; usedCount: number; totalCount: number }> {
     try {
       const lines = glossaryTable.split('\n').filter(l => l.trim().startsWith('|'));
       if (lines.length <= 2) return { text: glossaryTable, usedCount: 0, totalCount: 0 };
@@ -137,16 +137,17 @@ export class GeminiClient {
         }
       }
 
+      if (compactList.length === 0) return { text: '', usedCount: 0, totalCount: 0 };
       if (compactList.length <= 100) return { text: glossaryTable, usedCount: compactList.length, totalCount: compactList.length };
 
-      const si = await this.loadPromptText('/prompts/filter_glossary_system_instruction.md') || 'You are an expert terminology extractor. Your task is to filter a given list of glossary terms and identify which ones are present in the provided text block. Return ONLY a valid JSON array of objects with "english" and "pos" properties.';
+      const si = await this.loadPromptText('/prompts/filter_glossary_system_instruction.md') || 'You are an expert terminology extractor. Your task is to filter a given list of glossary terms and identify which ones are present in the provided text block or PDF document. Return ONLY a valid JSON array of objects with "english" and "pos" properties.';
       let prompt = await this.loadPromptText('/prompts/filter_glossary_prompt.md');
       if (!prompt) {
         prompt = "Glossary Terms:\n{{danh sách thuật ngữ}}\n\nText Block:\n{{nội dung cần dịch}}";
       }
       
       prompt = prompt.replace('{{danh sách thuật ngữ}}', JSON.stringify(compactList));
-      prompt = prompt.replace('{{nội dung cần dịch}}', text);
+      prompt = prompt.replace('{{nội dung cần dịch}}', text || '(Nội dung đính kèm trong tệp PDF)');
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const filterConfig: any = {
@@ -167,9 +168,16 @@ export class GeminiClient {
         }
       };
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const contentsPayload: any[] = [];
+      if (isPdf && pdfBase64) {
+        contentsPayload.push({ inlineData: { data: pdfBase64, mimeType: 'application/pdf' } });
+      }
+      contentsPayload.push({ text: prompt });
+
       const response = await this.ai.models.generateContent({
         model: 'gemini-flash-lite-latest',
-        contents: [ { text: prompt } ],
+        contents: contentsPayload,
         config: filterConfig
       });
       
@@ -180,8 +188,14 @@ export class GeminiClient {
         return { text: '', usedCount: 0, totalCount: fullGlossary.length };
       }
       
-      const matchedSet = new Set(matchedItems.map((item: { english: string; pos: string }) => `${item.english}_${item.pos}`.toLowerCase()));
-      const filteredGlossary = fullGlossary.filter(item => matchedSet.has(`${item.english}_${item.pos}`.toLowerCase()));
+      const matchedEnglishSet = new Set(matchedItems.map((item: { english: string; pos: string }) => (item.english || '').toLowerCase().trim()));
+      const matchedFullSet = new Set(matchedItems.map((item: { english: string; pos: string }) => `${(item.english || '').trim()}_${(item.pos || '').trim()}`.toLowerCase()));
+
+      const filteredGlossary = fullGlossary.filter(item => {
+        const fullKey = `${item.english.trim()}_${item.pos.trim()}`.toLowerCase();
+        const engKey = item.english.trim().toLowerCase();
+        return matchedFullSet.has(fullKey) || matchedEnglishSet.has(engKey);
+      });
       
       if (filteredGlossary.length === 0) return { text: '', usedCount: 0, totalCount: fullGlossary.length };
       
@@ -310,9 +324,23 @@ export class GeminiClient {
     let glossaryRatio: number | undefined = undefined;
 
     if (useGlossary && glossaryTable) {
-      activeGlossary = glossaryTable;
-      glossaryStatus = 'full';
-      glossaryRatio = 100;
+      try {
+        const filterRes = await this.filterGlossary('', glossaryTable, true, pdfBase64);
+        if (filterRes.text) {
+          activeGlossary = filterRes.text;
+          glossaryStatus = filterRes.usedCount < filterRes.totalCount ? 'filtered' : 'full';
+          glossaryRatio = filterRes.totalCount > 0 ? Math.round((filterRes.usedCount / filterRes.totalCount) * 100) : 100;
+        } else {
+          activeGlossary = glossaryTable;
+          glossaryStatus = 'full';
+          glossaryRatio = 100;
+        }
+      } catch (err) {
+        console.warn('Filtering glossary failed, falling back to full glossary:', err);
+        activeGlossary = glossaryTable;
+        glossaryStatus = 'full';
+        glossaryRatio = 100;
+      }
     }
     
     let siFileName = "/prompts/zero_svg_system_instructions.md";
