@@ -668,40 +668,7 @@ export class ChapterItemComponent implements OnDestroy {
       }
     });
 
-    effect(() => {
-      const transHtml = this.renderedTranslatedHtml();
-      const origHtml = this.renderedOriginalHtml();
-      const isExp = this.isExpanded();
-      const isFS = this.isFullscreen();
-      const isBiFS = this.isBilingualFullscreen();
-      const tab = this.activeTab();
-
-      if ((transHtml || origHtml) && (isExp || isFS || isBiFS) && (tab === 'translation' || isBiFS || isFS)) {
-        setTimeout(() => {
-          this.renderMathJax();
-        }, 100);
-      }
-    });
-  }
-
-  private renderMathJax() {
-    if (typeof window === 'undefined') return;
-    const el = this.elementRef.nativeElement;
-
-    if (window.MathJax && window.MathJax.typesetPromise) {
-      window.MathJax.typesetPromise([el]).catch((err: unknown) => console.debug('MathJax typeset error:', err));
-    } else {
-      let attempts = 0;
-      const checkInterval = setInterval(() => {
-        attempts++;
-        if (window.MathJax && window.MathJax.typesetPromise) {
-          clearInterval(checkInterval);
-          window.MathJax.typesetPromise([el]).catch((err: unknown) => console.debug('MathJax typeset error:', err));
-        } else if (attempts > 20) {
-          clearInterval(checkInterval);
-        }
-      }, 200);
-    }
+    // app-safe-html manages its own iframe isolation and MathJax rendering
   }
 
   showGlossaryModal = signal(false);
@@ -1103,7 +1070,11 @@ ${processed}
 
   cleanHtmlForInAppDisplay(rawHtml: string): string {
     if (!rawHtml) return '';
-    const html = rawHtml;
+    let html = rawHtml;
+
+    // Convert MathJax v2 script tags to standard LaTeX delimiters before stripping scripts
+    html = html.replace(/<script[^>]*type=["']math\/tex;?\s*mode=display["'][^>]*>([\s\S]*?)<\/script>/gi, '\\[$1\\]');
+    html = html.replace(/<script[^>]*type=["']math\/tex["'][^>]*>([\s\S]*?)<\/script>/gi, '\\($1\\)');
 
     // Extract content inside <body>...</body> if present
     const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
