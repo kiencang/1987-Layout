@@ -2,9 +2,8 @@
 
 Dịch file PDF dài từ tiếng Anh sang tiếng Việt. Có khả năng giữ lại ảnh & công thức toán.
 
-Link ứng dụng: https://aistudio.google.com/apps/9333e4c6-6b7a-442a-80ad-7b0a263c44ff?showPreview=true&showAssistant=true&fullscreenApplet=true (sử dụng được Key miễn phí để dịch);
-
-Link web: https://1987-layout.wpsila.com/ (Key trả phí mới dùng được);
+- Link ứng dụng: https://aistudio.google.com/apps/9333e4c6-6b7a-442a-80ad-7b0a263c44ff?showPreview=true&showAssistant=true&fullscreenApplet=true (sử dụng được Key miễn phí để dịch);
+- Link web: https://1987-layout.wpsila.com/ (Key trả phí mới dùng được);
 
 Chất lượng của 2 bản trên như nhau, chỉ khác là bản trên AI Studio thì tận dụng được API Key miễn phí của Gemini.
 
