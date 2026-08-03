@@ -2,12 +2,12 @@ import { Component, inject, signal, OnInit, Output, EventEmitter } from '@angula
 import { DbService, Project } from '../../core/db';
 import { BookStore } from '../../core/book.store';
 import { ToastService } from '../../core/toast.service';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-project-modal',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, DecimalPipe],
   template: `
     <div class="fixed inset-0 bg-zinc-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 cursor-pointer animate-fade-in" tabindex="0" (click)="triggerClose()" (keydown.escape)="triggerClose()" [class.animate-fade-out]="isClosing()">
       <div role="presentation" tabindex="-1" (keyup.enter)="$event.stopPropagation()" class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[80vh] flex flex-col overflow-hidden cursor-default animate-zoom-in" (click)="$event.stopPropagation()" [class.animate-zoom-out]="isClosing()">
@@ -86,11 +86,17 @@ import { DatePipe } from '@angular/common';
                           }
                         </div>
                         @if (getProgress(p); as prog) {
-                          <div class="w-full sm:w-2/3 max-w-sm mt-1 mb-1 flex items-center gap-3">
-                            <div class="flex-1 overflow-hidden h-1.5 bg-zinc-200 rounded-full">
-                              <div class="h-full rounded-full transition-all duration-300" [class]="prog.barColorClass" [style.width.%]="prog.percentage"></div>
+                          <div class="w-full sm:w-2/3 max-w-sm mt-1.5 mb-1 animate-fade-in">
+                            <div class="flex items-center gap-3">
+                              <div class="flex-1 overflow-hidden h-1.5 bg-zinc-200 rounded-full">
+                                <div class="h-full rounded-full transition-all duration-300" [class]="prog.barColorClass" [style.width.%]="prog.percentage"></div>
+                              </div>
+                              <span class="text-xs font-bold min-w-[2.5rem] text-right" [class]="prog.textColorClass">{{prog.percentage}}%</span>
                             </div>
-                            <span class="text-xs font-bold min-w-[2.5rem] text-right" [class]="prog.textColorClass">{{prog.percentage}}%</span>
+                            <p class="text-[11px] text-zinc-400 mt-0.5 font-medium flex items-center gap-1">
+                              <span class="material-icons text-[12px] opacity-75">layers</span>
+                              Đã dịch {{prog.translated}} / {{prog.total}} khối
+                            </p>
                           </div>
                         }
                       </div>
@@ -180,6 +186,44 @@ export class ProjectModal implements OnInit {
     const list = await this.db.getAllProjects();
     // Sort by importedAt (if available) or createdAt descending
     list.sort((a, b) => (b.importedAt ?? b.createdAt) - (a.importedAt ?? a.createdAt));
+
+    // Auto-migrate metadata for old projects to populate totalChunks/translatedChunks
+    for (const p of list) {
+      if (p.phase >= 3 && (p.totalChunks === undefined || p.translatedChunks === undefined)) {
+        try {
+          const fullProj = await this.db.getProject(p.id);
+          if (fullProj && fullProj.chapters) {
+            const totalChunks = fullProj.chapters.length;
+            const translatedChunks = fullProj.chapters.filter(c => c.status === 'done').length;
+            
+            p.totalChunks = totalChunks;
+            p.translatedChunks = translatedChunks;
+            
+            let totalPages = 0;
+            let translatedPages = 0;
+            fullProj.chapters.forEach(c => {
+              let chapterPages = 1;
+              if (c.startPage !== undefined && c.endPage !== undefined) {
+                chapterPages = Math.max(1, c.endPage - c.startPage + 1);
+              } else if (c.originalPdfPages !== undefined) {
+                chapterPages = Math.max(1, c.originalPdfPages);
+              }
+              totalPages += chapterPages;
+              if (c.status === 'done') {
+                translatedPages += chapterPages;
+              }
+            });
+            p.totalPages = totalPages;
+            p.translatedPages = translatedPages;
+
+            await this.db.updateProjectStats(p.id, fullProj.chapters);
+          }
+        } catch (err) {
+          console.error('Failed to auto-migrate stats for project', p.id, err);
+        }
+      }
+    }
+
     this.projects.set(list);
     this.isLoading.set(false);
   }
@@ -322,18 +366,19 @@ export class ProjectModal implements OnInit {
 
   getProgress(p: Project) {
     if (p.phase < 3) return null;
-    let total = p.totalWords || 0;
-    let translated = p.translatedWords || 0;
 
-    if (p.chapters && p.chapters.length > 0) {
-      total = 0;
+    let total = 0;
+    let translated = 0;
+
+    if (p.totalChunks !== undefined && p.totalChunks > 0) {
+      total = p.totalChunks;
+      translated = p.translatedChunks || 0;
+    } else if (p.chapters && p.chapters.length > 0) {
+      total = p.chapters.length;
+      translated = p.chapters.filter(c => c.status === 'done').length;
+    } else if (p.pdfTaskMeta && p.pdfTaskMeta.chunkCount > 0) {
+      total = p.pdfTaskMeta.chunkCount;
       translated = 0;
-      for (const c of p.chapters) {
-        total += c.wordCount || 0;
-        if (c.status === 'done') {
-          translated += c.wordCount || 0;
-        }
-      }
     }
 
     if (total === 0) return null;

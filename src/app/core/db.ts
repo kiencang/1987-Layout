@@ -99,6 +99,10 @@ export interface Project {
   customInstructions?: string;
   totalWords?: number;
   translatedWords?: number;
+  totalPages?: number;
+  translatedPages?: number;
+  totalChunks?: number;
+  translatedChunks?: number;
   splitSettings?: SplitSettings;
   pdfTaskMeta?: { fileName: string; chunkCount: number };
 }
@@ -399,12 +403,32 @@ export class DbService {
       if (meta) {
         let totalWords = 0;
         let translatedWords = 0;
+        let totalPages = 0;
+        let translatedPages = 0;
+        const totalChunks = chapters.length;
+        const translatedChunks = chapters.filter(c => c.status === 'done').length;
+
         chapters.forEach(c => {
            totalWords += c.wordCount || 0;
            if (c.status === 'done') translatedWords += c.wordCount || 0;
+
+           let chapterPages = 1;
+           if (c.startPage !== undefined && c.endPage !== undefined) {
+             chapterPages = Math.max(1, c.endPage - c.startPage + 1);
+           } else if (c.originalPdfPages !== undefined) {
+             chapterPages = Math.max(1, c.originalPdfPages);
+           }
+           totalPages += chapterPages;
+           if (c.status === 'done') {
+             translatedPages += chapterPages;
+           }
         });
         meta.totalWords = totalWords;
         meta.translatedWords = translatedWords;
+        meta.totalPages = totalPages;
+        meta.translatedPages = translatedPages;
+        meta.totalChunks = totalChunks;
+        meta.translatedChunks = translatedChunks;
         await db.put('projects_meta', meta);
       }
     } catch {
@@ -419,9 +443,24 @@ export class DbService {
       
       let totalWords = 0;
       let translatedWords = 0;
+      let totalPages = 0;
+      let translatedPages = 0;
+      const totalChunks = project.chapters?.length || 0;
+      const translatedChunks = project.chapters?.filter(c => c.status === 'done').length || 0;
       project.chapters?.forEach(c => {
          totalWords += c.wordCount || 0;
          if (c.status === 'done') translatedWords += c.wordCount || 0;
+         
+         let chapterPages = 1;
+         if (c.startPage !== undefined && c.endPage !== undefined) {
+           chapterPages = Math.max(1, c.endPage - c.startPage + 1);
+         } else if (c.originalPdfPages !== undefined) {
+           chapterPages = Math.max(1, c.originalPdfPages);
+         }
+         totalPages += chapterPages;
+         if (c.status === 'done') {
+           translatedPages += chapterPages;
+         }
       });
 
       const meta: ProjectMeta = {
@@ -444,6 +483,10 @@ export class DbService {
         pdfPageCount: project.pdfPageCount,
         totalWords,
         translatedWords,
+        totalPages,
+        translatedPages,
+        totalChunks,
+        translatedChunks,
         pdfTaskMeta: project.pdfTask ? { fileName: project.pdfTask.fileName, chunkCount: project.pdfTask.chunks.length } : undefined
       };
       
