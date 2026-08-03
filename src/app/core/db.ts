@@ -13,6 +13,8 @@ export interface PdfConversionChunk {
   markdown?: string;
   status: 'pending' | 'processing' | 'completed' | 'failed';
   error?: string;
+  b64Data?: string;
+  base64Pdf?: string;
 }
 
 export interface PdfConversionTask {

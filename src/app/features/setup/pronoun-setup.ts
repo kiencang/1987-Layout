@@ -257,7 +257,6 @@ export class PronounSetup {
        chunks = chapters.map((c, i) => ({
          index: i,
          text: '', // not used
-         pdfBase64: c.originalPdfBase64,
          status: 'pending'
        }));
     } else {
@@ -316,7 +315,9 @@ export class PronounSetup {
         const batch = chunksToProcess.slice(i, i + maxConcurrent);
         const promises = batch.map(async chunk => {
           try {
-            const inputData = chunk.pdfBase64! || chunk.text;
+            const chap = this.store.chapters()?.[chunk.index];
+            const pdfBase64 = chap?.originalPdfBase64;
+            const inputData = pdfBase64 || chunk.text;
             const result = await this.gemini.generatePronounsRaw(inputData, task.model, this.store.bookTitle(), this.store.author());
             chunk.result = result;
             chunk.status = 'completed';

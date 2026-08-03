@@ -180,9 +180,23 @@ export class Splitter {
 
   constructor() {
     effect(() => {
-      const count = this.store.pdfPageCount();
-      if (count && this.pdfEndPage() === 0) {
-        this.pdfEndPage.set(count);
+      const chs = this.store.chapters();
+      if (chs && chs.length > 0) {
+        if (chs[0].startPage) {
+          this.pdfStartPage.set(chs[0].startPage);
+        }
+        if (chs[chs.length - 1].endPage) {
+          this.pdfEndPage.set(chs[chs.length - 1].endPage!);
+        }
+        const chunkPageCount = chs[0].originalPdfPages || (chs[0].endPage && chs[0].startPage ? chs[0].endPage - chs[0].startPage + 1 : 0);
+        if (chunkPageCount >= 10 && chunkPageCount <= 25) {
+          this.pagesPerChunk.set(chunkPageCount);
+        }
+      } else {
+        const count = this.store.pdfPageCount();
+        if (count && this.pdfEndPage() === 0) {
+          this.pdfEndPage.set(count);
+        }
       }
 
       // Reset token calculation state when page selection or PDF changes

@@ -391,6 +391,7 @@ export class BookStore {
        if (id) {
           this.db.saveAllChapters(id, chs);
           this.db.updateProjectStats(id, chs);
+          this.setPdfTask(undefined);
        }
     }
   }

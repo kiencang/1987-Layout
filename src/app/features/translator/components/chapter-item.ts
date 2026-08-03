@@ -230,16 +230,16 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
               @if (chapter().translatedText) {
                 <div class="flex items-center gap-1">
                   <button (click)="downloadPdf()" class="tooltip-trigger flex items-center justify-center p-1.5 text-zinc-500 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors" title="Tải xuống PDF">
-                    <mat-icon class="!w-4 !h-4 !text-[16px]">picture_as_pdf</mat-icon>
+                    <mat-icon class="!w-6 !h-6 !text-[22px]">picture_as_pdf</mat-icon>
                   </button>
                   <button (click)="downloadHtml()" class="tooltip-trigger flex items-center justify-center p-1.5 text-zinc-500 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors" title="Tải xuống HTML">
-                    <mat-icon class="!w-4 !h-4 !text-[16px]">html</mat-icon>
+                    <mat-icon class="!w-6 !h-6 !text-[22px]">html</mat-icon>
                   </button>
                   <button (click)="openBilingualFullscreen()" class="tooltip-trigger flex items-center justify-center p-1.5 text-zinc-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors" title="Đọc song ngữ">
-                    <mat-icon class="!w-4 !h-4 !text-[16px]">vertical_split</mat-icon>
+                    <mat-icon class="!w-6 !h-6 !text-[22px]">vertical_split</mat-icon>
                   </button>
                   <button (click)="openFullscreen()" class="tooltip-trigger flex items-center justify-center p-1.5 text-zinc-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors" title="Đọc toàn màn hình">
-                    <mat-icon class="!w-4 !h-4 !text-[16px]">fullscreen</mat-icon>
+                    <mat-icon class="!w-6 !h-6 !text-[22px]">fullscreen</mat-icon>
                   </button>
                 </div>
               }
@@ -265,7 +265,9 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                     }
                   </div>
                 } @else if (chapter().originalText) {
-                  <app-safe-html [htmlContent]="renderedOriginalHtml()" class="w-full text-zinc-800" />
+                  <div class="max-h-[700px] overflow-y-auto pr-2">
+                    <app-safe-html [htmlContent]="renderedOriginalHtml()" class="w-full text-zinc-800" />
+                  </div>
                 } @else {
                   <div class="flex flex-col items-center justify-center py-12 text-zinc-400">
                     <mat-icon class="!w-10 !h-10 !text-[40px] text-zinc-300 mb-2">picture_as_pdf</mat-icon>
@@ -278,7 +280,9 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                     <span class="text-sm">Đây là nội dung bản quyền / metadata, nội dung sẽ được giữ nguyên bản gốc khi xuất file.</span>
                   </div>
                 } @else if (chapter().translatedText) {
-                  <app-safe-html [htmlContent]="renderedTranslatedHtml()" class="w-full text-zinc-900" />
+                  <div class="max-h-[700px] overflow-y-auto pr-2">
+                    <app-safe-html [htmlContent]="renderedTranslatedHtml()" class="w-full text-zinc-900" />
+                  </div>
                 } @else if (chapter().status === 'translating') {
                   <app-translating-skeleton />
                 } @else {

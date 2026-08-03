@@ -2,12 +2,13 @@ import { Component, inject, signal, OnInit, Output, EventEmitter } from '@angula
 import { DbService, Project } from '../../core/db';
 import { BookStore } from '../../core/book.store';
 import { ToastService } from '../../core/toast.service';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
+import JSZip from 'jszip';
 
 @Component({
   selector: 'app-project-modal',
   standalone: true,
-  imports: [DatePipe, DecimalPipe],
+  imports: [DatePipe],
   template: `
     <div class="fixed inset-0 bg-zinc-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 cursor-pointer animate-fade-in" tabindex="0" (click)="triggerClose()" (keydown.escape)="triggerClose()" [class.animate-fade-out]="isClosing()">
       <div role="presentation" tabindex="-1" (keyup.enter)="$event.stopPropagation()" class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[80vh] flex flex-col overflow-hidden cursor-default animate-zoom-in" (click)="$event.stopPropagation()" [class.animate-zoom-out]="isClosing()">
@@ -17,7 +18,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
             <button (click)="fileInput.click()" class="text-sm px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg font-medium transition-colors flex items-center gap-1">
               <span class="material-icons text-[18px]">file_upload</span> Nhập dự án
             </button>
-            <input #fileInput type="file" accept=".json" class="hidden" (change)="importProject($event)" />
+            <input #fileInput type="file" accept=".zip" class="hidden" (change)="importProject($event)" />
             <button (click)="triggerClose()" class="text-zinc-400 hover:text-zinc-700 w-8 h-8 rounded-full hover:bg-zinc-200 transition-colors flex items-center justify-center">
               <span class="material-icons !text-[20px] !w-5 !h-5 !flex !items-center !justify-center leading-none">close</span>
             </button>
@@ -116,7 +117,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
                           </div>
                         </div>
                       } @else {
-                        <button (click)="exportProjectData(p, $event)" class="px-4 py-2 w-full bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg text-sm font-medium transition-colors border border-purple-200 shadow-sm text-center flex items-center justify-center gap-1.5" title="Xuất toàn bộ dữ liệu dự án (JSON).&#10;Cho mục đích lưu trữ hoặc nhập vào tài khoản khác dịch tiếp.">
+                        <button (click)="exportProjectData(p, $event)" class="px-4 py-2 w-full bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg text-sm font-medium transition-colors border border-purple-200 shadow-sm text-center flex items-center justify-center gap-1.5" title="Xuất toàn bộ dữ liệu dự án (.zip).&#10;Cho mục đích lưu trữ hoặc nhập vào tài khoản khác dịch tiếp.">
                           <span class="material-icons text-[18px]">save_alt</span> Sao lưu dự án
                         </button>
                         <button (click)="loadProject(p.id)" class="px-4 py-2 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium transition-colors border border-indigo-200 shadow-sm text-center flex items-center justify-center gap-1.5">
@@ -275,27 +276,173 @@ export class ProjectModal implements OnInit {
       return;
     }
     
-    this.toast.info('Đang chuẩn bị dữ liệu xuất bản... Xin vui lòng chờ');
+    this.toast.info('Đang nén dữ liệu dự án và tạo file sao lưu .zip... Xin vui lòng chờ');
     
-    let dataStr: string;
     try {
-      const result = await this.runProjectWorkerTask('EXPORT_PROJECT', fullProject);
-      dataStr = result.jsonStr || '';
-    } catch (e: unknown) {
-      this.toast.error('Lỗi khi xuất dữ liệu: ' + (e instanceof Error ? e.message : 'Unknown error'));
-      return;
-    }
+      const zip = new JSZip();
+      
+      // Separate the huge binary and base64 parts from the main JSON to keep JSON string length small
+      const { rawPdf, images, pdfTask, chapters, pronounTask, glossaryTask, ...restProject } = fullProject;
+      
+      // Create a clean copy of pdfTask, but without chunk binary pdfData or b64Data (we will save them separately)
+      let cleanedPdfTask = null;
+      if (pdfTask && pdfTask.chunks) {
+        const chunkFolder = zip.folder('pdf_chunks');
+        
+        const cleanedChunks = pdfTask.chunks.map(chunk => {
+          // 1. Extract binary data from pdfData or b64Data
+          let binaryData: Uint8Array | null = null;
+          
+          if (chunk.pdfData) {
+            if (chunk.pdfData instanceof Uint8Array) {
+              binaryData = chunk.pdfData;
+            } else if ((chunk.pdfData as { buffer?: ArrayBuffer }).buffer) {
+              binaryData = new Uint8Array((chunk.pdfData as { buffer?: ArrayBuffer }).buffer as ArrayBuffer);
+            } else if (typeof chunk.pdfData === 'object') {
+              binaryData = new Uint8Array(Object.values(chunk.pdfData));
+            }
+          }
+          
+          if (!binaryData) {
+            const b64 = chunk.b64Data || (chunk as { base64Pdf?: string }).base64Pdf;
+            if (b64 && typeof b64 === 'string') {
+              try {
+                const binaryString = self.atob(b64);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                  bytes[i] = binaryString.charCodeAt(i);
+                }
+                binaryData = bytes;
+              } catch (err) {
+                console.error('Error parsing chunk base64 data', err);
+              }
+            }
+          }
+          
+          // 2. Save chunk PDF binary file separately in zip
+          if (binaryData && chunkFolder) {
+            chunkFolder.file(`chunk_${chunk.index}.bin`, binaryData);
+          }
+          
+          // 3. Return clean chunk without large data properties to keep project.json tiny
+          const restChunk = { ...chunk };
+          delete restChunk.pdfData;
+          delete (restChunk as { b64Data?: string }).b64Data;
+          delete (restChunk as { base64Pdf?: string }).base64Pdf;
+          return restChunk;
+        });
+        
+        cleanedPdfTask = {
+          ...pdfTask,
+          chunks: cleanedChunks
+        };
+      }
 
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `1987Project_${p.name.replace(/\s+/g, '_')}_${p.id}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    this.toast.success(this.toast.Messages.PROJECT_BACKUP_SUCCESS);
+      // Create a clean copy of pronounTask without the huge PDF base64 strings in chunks
+      let cleanedPronounTask = null;
+      if (pronounTask) {
+        let cleanedChunks = null;
+        if (pronounTask.chunks) {
+          cleanedChunks = pronounTask.chunks.map(chunk => {
+            const restChunk = { ...chunk };
+            delete restChunk.pdfBase64;
+            return restChunk;
+          });
+        }
+        cleanedPronounTask = {
+          ...pronounTask,
+          chunks: cleanedChunks
+        };
+      }
+
+      // Create a clean copy of glossaryTask without the huge PDF base64 strings in chunks
+      let cleanedGlossaryTask = null;
+      if (glossaryTask) {
+        let cleanedChunks = null;
+        if (glossaryTask.chunks) {
+          cleanedChunks = glossaryTask.chunks.map(chunk => {
+            const restChunk = { ...chunk };
+            delete restChunk.pdfBase64;
+            return restChunk;
+          });
+        }
+        cleanedGlossaryTask = {
+          ...glossaryTask,
+          chunks: cleanedChunks
+        };
+      }
+
+      // Create a clean copy of chapters without the huge PDF base64 strings
+      let cleanedChapters = null;
+      if (chapters) {
+        const chaptersPdfFolder = zip.folder('chapters_pdf');
+        cleanedChapters = chapters.map(chapter => {
+          // Process originalPdfBase64
+          if (chapter.originalPdfBase64 && chaptersPdfFolder) {
+            try {
+              const binaryString = self.atob(chapter.originalPdfBase64);
+              const len = binaryString.length;
+              const bytes = new Uint8Array(len);
+              for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+              }
+              chaptersPdfFolder.file(`chapter_${chapter.id}_original.bin`, bytes);
+            } catch (err) {
+              console.error(`Error saving original pdf for chapter ${chapter.id}`, err);
+            }
+          }
+
+          // Return a clean chapter record with metadata and translated markdown text, but no huge base64 strings!
+          const restChapter = { ...chapter };
+          delete restChapter.originalPdfBase64;
+          return restChapter;
+        });
+      }
+      
+      const projectJsonObj = {
+        ...restProject,
+        chapters: cleanedChapters,
+        pdfTask: cleanedPdfTask,
+        pronounTask: cleanedPronounTask,
+        glossaryTask: cleanedGlossaryTask
+      };
+      
+      // 1. Add metadata/chapters as project.json (Now extremely light!)
+      zip.file('project.json', JSON.stringify(projectJsonObj, null, 2));
+      
+      // 2. Add raw PDF binary if it exists
+      if (rawPdf) {
+        zip.file('raw_pdf.bin', rawPdf);
+      }
+      
+      // 3. Add images folder if images exist
+      if (images) {
+        const imgFolder = zip.folder('images');
+        if (imgFolder) {
+          for (const [imgId, dataUrl] of Object.entries(images)) {
+            imgFolder.file(`${imgId}.txt`, dataUrl);
+          }
+        }
+      }
+      
+      // Generate the ZIP file as a blob using DEFLATE compression to keep file size optimized
+      const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+      
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `1987Project_${p.name.replace(/\s+/g, '_')}_${p.id}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      this.toast.success(this.toast.Messages.PROJECT_BACKUP_SUCCESS);
+    } catch (e: unknown) {
+      console.error(e);
+      this.toast.error('Lỗi khi xuất dữ liệu dự án: ' + (e instanceof Error ? e.message : 'Unknown error'));
+    }
   }
 
   async importProject(event: Event) {
@@ -303,12 +450,91 @@ export class ProjectModal implements OnInit {
     if (!input.files || input.files.length === 0) return;
     const file = input.files[0];
     
+    if (!file.name.endsWith('.zip')) {
+      this.toast.error('Ứng dụng hiện tại chỉ hỗ trợ nhập dữ liệu dự án từ tệp sao lưu định dạng .zip. Vui lòng chọn tệp tin .zip hợp lệ.');
+      input.value = '';
+      return;
+    }
+    
     try {
-      this.toast.info('Đang nhập dữ liệu... Xin vui lòng chờ');
-      const text = await file.text();
+      this.toast.info('Đang giải nén và nhập dữ liệu dự án... Xin vui lòng chờ');
+      const zip = await JSZip.loadAsync(file);
       
-      const result = await this.runProjectWorkerTask('IMPORT_PROJECT', { text });
-      const proj = result.project as Project;
+      // 1. Read project.json
+      const jsonFile = zip.file('project.json');
+      if (!jsonFile) {
+        this.toast.error('Tập tin ZIP không hợp lệ (không tìm thấy file project.json)');
+        input.value = '';
+        return;
+      }
+      const jsonText = await jsonFile.async('text');
+      const proj: Project = JSON.parse(jsonText);
+      
+      // 2. Read raw_pdf.bin if it exists
+      const rawPdfFile = zip.file('raw_pdf.bin');
+      if (rawPdfFile) {
+        const rawPdfBuffer = await rawPdfFile.async('uint8array');
+        proj.rawPdf = rawPdfBuffer;
+      }
+      
+      // 3. Read images if they exist
+      const images: Record<string, string> = {};
+      const imagesFolder = zip.folder('images');
+      if (imagesFolder) {
+        const imageFiles: { name: string; file: JSZip.JSZipObject }[] = [];
+        imagesFolder.forEach((relativePath, imgFile) => {
+          if (imgFile.name.endsWith('.txt')) {
+            imageFiles.push({ name: relativePath, file: imgFile });
+          }
+        });
+        
+        for (const item of imageFiles) {
+          const imgId = item.name.replace('.txt', '');
+          const dataUrl = await item.file.async('text');
+          images[imgId] = dataUrl;
+        }
+      }
+      if (Object.keys(images).length > 0) {
+        proj.images = images;
+      }
+      
+      // 4. Read pdf_chunks if they exist
+      const chunkFolder = zip.folder('pdf_chunks');
+      if (chunkFolder && proj.pdfTask && proj.pdfTask.chunks) {
+        for (const chunk of proj.pdfTask.chunks) {
+          const chunkFile = zip.file(`pdf_chunks/chunk_${chunk.index}.bin`);
+          if (chunkFile) {
+            const chunkBuffer = await chunkFile.async('uint8array');
+            chunk.pdfData = chunkBuffer;
+            
+            // Re-generate base64 b64Data string to ensure full compatibility with application
+            let binary = '';
+            const len = chunkBuffer.byteLength;
+            for (let i = 0; i < len; i++) {
+              binary += String.fromCharCode(chunkBuffer[i]);
+            }
+            chunk.b64Data = self.btoa(binary);
+          }
+        }
+      }
+      
+      // 5. Read chapter PDFs if they exist (under chapters_pdf/ folder)
+      const chaptersPdfFolder = zip.folder('chapters_pdf');
+      if (chaptersPdfFolder && proj.chapters) {
+        for (const chapter of proj.chapters) {
+          // Read original PDF chunk
+          const origFile = zip.file(`chapters_pdf/chapter_${chapter.id}_original.bin`);
+          if (origFile) {
+            const origBuffer = await origFile.async('uint8array');
+            let binary = '';
+            const len = origBuffer.byteLength;
+            for (let i = 0; i < len; i++) {
+              binary += String.fromCharCode(origBuffer[i]);
+            }
+            chapter.originalPdfBase64 = self.btoa(binary);
+          }
+        }
+      }
       
       if (!proj || !proj.id || !proj.name) {
         this.toast.error(this.toast.Messages.PROJECT_IMPORT_DRAFT_ERROR);
