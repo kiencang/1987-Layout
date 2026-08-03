@@ -427,7 +427,7 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
               </button>
             </div>
             
-            <div class="p-6 overflow-y-auto flex-1 bg-white">
+            <div class="p-6 overflow-y-auto overscroll-contain flex-1 bg-white">
                <app-safe-html [htmlContent]="parsedCustomGlossary()" class="w-full text-zinc-700" />
             </div>
           </div>
@@ -449,7 +449,7 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                 <span class="material-icons !text-[20px] !w-5 !h-5 !flex !items-center !justify-center leading-none">close</span>
               </button>
             </div>
-            <div class="p-6 overflow-y-auto flex-1 bg-white">
+            <div class="p-6 overflow-y-auto overscroll-contain flex-1 bg-white">
                <app-safe-html [htmlContent]="parsedActiveSummary()" class="w-full text-zinc-700" />
             </div>
           </div>
@@ -471,7 +471,7 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                 <span class="material-icons !text-[20px] !w-5 !h-5 !flex !items-center !justify-center leading-none">close</span>
               </button>
             </div>
-            <div class="p-6 overflow-y-auto flex-1 bg-white">
+            <div class="p-6 overflow-y-auto overscroll-contain flex-1 bg-white">
                <app-safe-html [htmlContent]="parsedActiveContextSummary()" class="w-full text-zinc-700" />
             </div>
           </div>
@@ -493,7 +493,7 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                 <span class="material-icons !text-[20px] !w-5 !h-5 !flex !items-center !justify-center leading-none">close</span>
               </button>
             </div>
-            <div class="p-6 overflow-y-auto flex-1 bg-white">
+            <div class="p-6 overflow-y-auto overscroll-contain flex-1 bg-white">
                @if (parsedCustomInstructionsSnapshot()) {
                  <app-safe-html [htmlContent]="parsedCustomInstructionsSnapshot()" class="w-full text-zinc-700" />
                } @else {
@@ -519,7 +519,7 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                 <span class="material-icons !text-[20px] !w-5 !h-5 !flex !items-center !justify-center leading-none">close</span>
               </button>
             </div>
-            <div class="p-6 overflow-y-auto flex-1 bg-white">
+            <div class="p-6 overflow-y-auto overscroll-contain flex-1 bg-white">
                @if (parsedPronounSnapshot()) {
                  <app-safe-html [htmlContent]="parsedPronounSnapshot()" class="w-full text-zinc-700" />
                } @else {
