@@ -44,6 +44,7 @@ Công cụ này có thể được sử dụng cho mục đích nghiên cứu v�
 *   **[pdf-lib](https://pdf-lib.js.org/)**: Dùng để chia tách PDF thành các chunk (đoạn) để dễ xử lý hơn.
 *   **[Marked & marked-footnote](https://marked.js.org/)**: Chuyển Markdown sang cấu trúc HTML, có hỗ trợ ghi chú chân trang (footnotes).
 *   **[Turndown](https://github.com/mixmark-io/turndown)**: Chuyển đổi ngược các định dạng HTML thành cú pháp Markdown.
+*   **[JSZip](https://stuk.github.io/jszip/)**: Công cụ nén & đóng gói toàn bộ file HTML thành file .zip hoàn chỉnh để tải về.
 
 ### 4. Lưu Trữ Nội Bộ (Local Database & Storage)
 *   **[idb (IndexedDB Wrapper)](https://github.com/jakearchibald/idb)**: Thư viện wrap IndexedDB, hỗ trợ xử lý các tác vụ liên quan đến IndexedDB tốt hơn. Toàn bộ dữ liệu sách được lưu cục bộ tại trình duyệt là thông qua IndexedDB.
