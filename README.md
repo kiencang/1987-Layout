@@ -10,12 +10,14 @@ Chất lượng của 2 bản trên như nhau, chỉ khác là bản trên AI St
 ---
 
 Ý tưởng của dự án này được phát triển dựa trên 2 dự án trước đó:
-- silaBook: https://github.com/kiencang/silaBook
-- PDF-silaTranslator-Online: https://github.com/kiencang/PDF-silaTranslator-Online
+- **silaBook**: https://github.com/kiencang/silaBook
+- **PDF-silaTranslator-Online**: https://github.com/kiencang/PDF-silaTranslator-Online
 
 Nó cố gắng tận dụng 2 ưu điểm các các dự án trước là khả năng dịch dài và khả năng bảo toàn định dạng tốt của bản gốc.
 
-Lưu ý là mặc dù có nhiều điểm tương đồng 1987-Layout và silaBook không thay thế nhau hoàn toàn và không có cái nào `tốt hơn hẳn`. Bạn dùng công cụ nào sẽ tùy trường hợp cụ thể và mục đích.
+Lưu ý là mặc dù có nhiều điểm tương đồng 1987-Layout và silaBook không thay thế nhau hoàn toàn và không có cái nào `tốt hơn hẳn`. Bạn dùng công cụ nào sẽ tùy trường hợp cụ thể và mục đích. 
+
+Nếu mục đích của bạn là dịch các cuốn sách khoa học dài và bạn muốn bảo toàn định dạng tốt nhất có thể, đặc biệt là công thức toán học, thế thì 1987-Layout sẽ là lựa chọn thích hợp nhất.
 
 ## Hướng dẫn sử dụng
 Về cơ bản ứng dụng 1987-Layout cũng có cách sử dụng khá tương đồng với silaBook. 
