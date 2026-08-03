@@ -1,0 +1,5 @@
+name = "1987-layout"
+compatibility_date = "2026-08-03"
+
+[assets]
+directory = "./dist"
