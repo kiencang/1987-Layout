@@ -15,6 +15,8 @@ Chất lượng của 2 bản trên như nhau, chỉ khác là bản trên AI St
 
 Nó cố gắng tận dụng 2 ưu điểm các các dự án trước là khả năng dịch dài và khả năng bảo toàn định dạng tốt của bản gốc.
 
+Lưu ý là mặc dù có nhiều điểm tương đồng 1987-Layout và silaBook không thay thế nhau hoàn toàn và không có cái nào `tốt hơn hẳn`. Bạn dùng công cụ nào sẽ tùy trường hợp cụ thể và mục đích.
+
 ## Hướng dẫn sử dụng
 Về cơ bản ứng dụng 1987-Layout cũng có cách sử dụng khá tương đồng với silaBook. 
 - **Bước 1**: Nhập tên sách và tên tác giả. Nhập chính xác tên sách & tác giả giúp công cụ dịch tốt hơn;
