@@ -43,7 +43,7 @@ import { GeminiClient } from '../../core/gemini';
         <div class="bg-white rounded-xl shadow-sm border border-zinc-200 p-6 mb-6 transition-opacity duration-300" [class.opacity-50]="store.hasAnyTranslation() || isProcessing()" [class.pointer-events-none]="store.hasAnyTranslation() || isProcessing()">
           <h3 class="text-lg font-semibold text-zinc-900 mb-2 flex items-center gap-2">
             <mat-icon class="text-indigo-600 !w-[22px] !h-[22px] !text-[22px]">content_cut</mat-icon>
-            <span>Cắt giảm số lượng trang của sách</span>
+            <span>Cắt giảm số lượng trang của sách (tùy chọn)</span>
           </h3>
           <p class="text-sm text-zinc-500 mb-4">Chọn khoảng trang cần dịch (Tổng số trang tài liệu gốc: <strong>{{ store.pdfPageCount() || 0 }}</strong> trang). Nếu bạn không có nhu cầu giảm số lượng trang, hãy cứ giữ nguyên toàn bộ cuốn sách. Ứng dụng không giới hạn số lượng trang, nhưng dung lượng cả file không quá 200MB và tổng token đầu vào không quá 1.5 triệu token.</p>
 
@@ -112,10 +112,10 @@ import { GeminiClient } from '../../core/gemini';
       }
 
       <div class="bg-white rounded-xl shadow-sm border border-zinc-200 p-6 mb-8 transition-opacity duration-300" [class.opacity-50]="store.hasAnyTranslation() || isProcessing()" [class.pointer-events-none]="store.hasAnyTranslation() || isProcessing()">
-        <h3 class="text-lg font-semibold text-zinc-900 mb-6">Cài đặt chia sách</h3>
+        <h3 class="text-lg font-semibold text-zinc-900 mb-2">Cài đặt chia sách</h3>
         
         <div class="w-full">
-          <label for="pagesPerChunkInput" class="block text-sm font-medium text-zinc-700 mb-2">Số trang mỗi phần (chunk). Ứng dụng sẽ chia cuốn sách thảnh nhiều phần nhỏ, mỗi phần sẽ có số lượng trang như bạn chọn bên dưới, mặc định 20 trang thường ổn, tuy nhiên bạn có thể điều chỉnh tăng giảm nếu muốn.</label>
+          <label for="pagesPerChunkInput" class="block text-sm text-zinc-500 mb-2">Số trang mỗi phần (chunk)... Ứng dụng sẽ chia cuốn sách thảnh nhiều phần nhỏ, mỗi phần sẽ có số lượng trang như bạn chọn bên dưới, mặc định 20 trang thường ổn, tuy nhiên bạn có thể điều chỉnh tăng giảm nếu muốn. Các cuốn sách càng nhiều ảnh, giá trị này để thấp sẽ tốt hơn để giảm gánh nặng cho công cụ dịch.</label>
           <div class="flex items-center gap-3 max-w-xs">
             <div class="flex-1 flex items-center bg-white border border-zinc-200 rounded-lg px-3 py-2 shadow-sm focus-within:border-indigo-500 transition-colors">
               <input id="pagesPerChunkInput" type="number" min="10" max="25" [(ngModel)]="pagesPerChunk" (blur)="normalizePagesPerChunk()" class="w-full outline-none bg-transparent font-medium text-zinc-800">

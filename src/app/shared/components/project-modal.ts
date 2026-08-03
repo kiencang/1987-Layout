@@ -246,7 +246,7 @@ export class ProjectModal implements OnInit {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `SilaProject_${p.name.replace(/\s+/g, '_')}_${p.id}.json`;
+    a.download = `1987Project_${p.name.replace(/\s+/g, '_')}_${p.id}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

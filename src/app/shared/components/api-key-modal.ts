@@ -27,7 +27,7 @@ import { ToastService } from '../../core/toast.service';
         <!-- Content -->
         <div class="p-6 space-y-5 overflow-y-auto bg-white">
           <p class="text-sm text-zinc-600 leading-relaxed">
-            Để sử dụng công cụ dịch sách này bạn cần khóa API Key của Gemini. Bạn hãy vào link "Nơi lấy API Key Gemini" để thao tác. Key miễn phí chỉ có hiệu lực nếu bạn dùng <a href="https://aistudio.google.com/apps/3b188b61-767b-4732-b9ab-05f9e5b48cf1?showPreview=true&showAssistant=true&fullscreenApplet=true" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-750 hover:underline">ứng dụng qua AI Studio</a>, với ai dùng trên silabook.wpsila.com, chỉ Key trả phí mới dùng được. Hãy remix ứng dụng trên AI Studio để dùng miễn phí.
+            Để sử dụng công cụ dịch sách này bạn cần khóa API Key của Gemini. Bạn hãy vào link "Nơi lấy API Key Gemini" để thao tác. Key miễn phí chỉ có hiệu lực nếu bạn dùng <a href="https://aistudio.google.com/apps/9333e4c6-6b7a-442a-80ad-7b0a263c44ff?showPreview=true&showAssistant=true" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-750 hover:underline">ứng dụng qua AI Studio</a>, với ai dùng trên silabook.wpsila.com, chỉ Key trả phí mới dùng được. Hãy remix ứng dụng trên AI Studio để dùng miễn phí.
           </p>
 
           <!-- Status badge/links -->

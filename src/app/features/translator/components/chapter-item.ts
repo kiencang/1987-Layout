@@ -977,7 +977,7 @@ export class ChapterItemComponent implements OnDestroy {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${this.store.currentProjectName()}_${title}_silaBook_vi</title>
+<title>${this.store.currentProjectName()}_${title}_1987-Layout_vi</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 ${PRINT_PDF_STYLES}
@@ -1021,7 +1021,7 @@ ${htmlBody}
       const restored = restoreImagePlaceholders(text, this.store.images());
       const processed = restored.replace(/\[\^([^\]]+)\]/g, `[^${prefix}-$1]`);
       const title = this.chapter().title || `Phần ${this.index() + 1}`;
-      const titleName = `${this.store.currentProjectName()}_${title}_silaBook_vi`;
+      const titleName = `${this.store.currentProjectName()}_${title}_1987-Layout_vi`;
       const trimmed = processed.trim().toLowerCase();
       let htmlDoc = '';
 
@@ -1056,7 +1056,7 @@ ${processed}
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${this.store.currentProjectName()}_${title}_silaBook_vi.html`;
+      a.download = `${this.store.currentProjectName()}_${title}_1987-Layout_vi.html`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

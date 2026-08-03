@@ -137,7 +137,7 @@ export class BookStore {
   readonly isTranslatingAny = computed(() => this.chapters().some(c => c.status === 'translating'));
   readonly isBusy = computed(() => this.isConverting() || this.isGeneratingMetadata() || this.isTranslatingAny() || this.isAnalyzingSplits());
   readonly config = signal<TranslationConfig>({
-    model: 'gemini-flash-latest',
+    model: 'gemini-pro-latest',
     generateSummary: true,
     translationStyle: 'general_science'
   });
@@ -578,7 +578,7 @@ export class BookStore {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${name}_silaBook_vi</title>
+<title>${name}_1987-Layout_vi</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 ${PRINT_PDF_STYLES}
@@ -646,7 +646,7 @@ ${htmlBody}
           window.__SILA_IMAGES__ = tempImages;
         }
       }
-      const title = `${name || 'Untitled'}_silaBook_vi`;
+      const title = `${name || 'Untitled'}_1987-Layout_vi`;
       const trimmed = htmlBody.trim().toLowerCase();
       let htmlDoc = '';
 
@@ -681,7 +681,7 @@ ${htmlBody}
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${name}_silaBook_vi.html`;
+      a.download = `${name}_1987-Layout_vi.html`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

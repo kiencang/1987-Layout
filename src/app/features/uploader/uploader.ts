@@ -52,10 +52,10 @@ import { PdfService } from './pdf.service';
                 <mat-icon class="!text-2xl !w-6 !h-6 !flex !items-center !justify-center">upload_file</mat-icon>
               </div>
               <div class="w-full">
-                <h3 class="text-lg font-semibold text-zinc-900">Tải lên cuốn sách cần dịch</h3>
+                <h3 class="text-lg font-semibold text-zinc-900">Tải lên cuốn sách PDF cần dịch</h3>
                 <p class="text-xs text-zinc-500 mt-0.5">Click chọn hoặc kéo thả vào đây.</p>
                 <div class="flex flex-wrap gap-1.5 justify-center mt-2.5">
-                  <span class="px-2.5 py-1 bg-zinc-100 group-hover:bg-zinc-200 text-zinc-600 group-hover:text-zinc-900 text-xs rounded font-mono transition-colors">PDF (200MB)</span>
+                  <span class="px-2.5 py-1 bg-zinc-100 group-hover:bg-zinc-200 text-zinc-600 group-hover:text-zinc-900 text-xs rounded font-mono transition-colors">PDF (max 200MB)</span>
                 </div>
               </div>
             </div>
