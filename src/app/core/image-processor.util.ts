@@ -138,11 +138,6 @@ export async function extractImagesFromPdf(
 
         const dataUrl = resizeCanvasImage(tempCanvas, maxDim, quality);
 
-        // Check if this image already exists in imagesMap
-        for (const uri of Object.values(imagesMap)) {
-          if (uri === dataUrl) return;
-        }
-
         pageImgCount++;
         const imgId = `PAGE_${currentRealPage}_IMG_${pageImgCount}`;
         imagesMap[imgId] = dataUrl;

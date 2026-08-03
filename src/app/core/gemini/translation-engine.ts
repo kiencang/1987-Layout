@@ -145,10 +145,16 @@ export async function translateChapter(
       const imageIds = Object.keys(imagesToAttach).join(', ');
       const imageGuide = `\n\n<available_images_and_ids>
 Dưới đây là danh sách các hình ảnh được trích xuất từ tài liệu gốc tương ứng với phần nội dung này, cùng mã ID tương ứng: [${imageIds}].
-Mỗi hình ảnh sẽ được đính kèm riêng biệt dưới dạng phần tử đa phương tiện trong payload của bạn kèm theo thông báo "Original image with ID: mã id của ảnh".
-Bạn BẮT BUỘC phải đối chiếu nội dung trong tệp PDF gốc với hình ảnh thực tế để xác định vị trí xuất hiện của hình ảnh đó trong tài liệu, sau đó chèn thẻ HTML (ví dụ: <img src="mã id của ảnh" alt="mô tả tiếng Việt có ý nghĩa"> tại đúng vị trí tương thích nhất trong bản dịch tiếng Việt.
-HÃY CHÚ Ý: Mã ID của ảnh phải khớp chính xác với mã ID được cung cấp. Nếu bạn thấy một ID hình ảnh trong tài liệu gốc, hãy sử dụng đúng ID đó trong bản dịch nếu hình ảnh đó tương ứng với nội dung.
-TUYỆT ĐỐI KHÔNG được phát sinh hay tự bịa ra ID mới, chỉ sử dụng chính xác các mã ID được cung cấp ở trên.
+Mỗi hình ảnh sẽ được đính kèm dưới dạng phần tử đa phương tiện trong payload của bạn kèm theo thông báo định danh "Original image with ID: mã_id_của_ảnh".
+
+BẠN BẮT BUỘC PHẢI TUÂN THỦ CÁC NGUYÊN TẮC SAU KHI XỬ LÝ HÌNH ẢNH:
+1. ĐỐI CHIẾU VỊ TRÍ CHÍNH XÁC: Quan sát trực quan tệp PDF gốc và các hình ảnh được đính kèm để xác định chính xác vị trí ngữ cảnh của từng ảnh trong mạch văn bản.
+2. CHÈN THẺ HTML ĐÚNG CHUẨN: Chèn thẻ hình ảnh HTML theo định dạng mẫu:
+   <img src="mã_id_của_ảnh" alt="Mô tả chi tiết nội dung hình ảnh bằng tiếng Việt">
+   tại đúng vị trí ngữ cảnh phù hợp nhất trong bản dịch tiếng Việt của bạn.
+3. THUỘC TÍNH ALT CÓ Ý NGHĨA: Không sử dụng các đoạn mô tả chung chung hay sáo rỗng cho 'alt'. Hãy viết mô tả cụ thể về những gì đang diễn ra trong ảnh (ví dụ: mô tả sơ đồ, biểu đồ, hình vẽ minh họa, công thức toán học có trong ảnh) để hỗ trợ khả năng tiếp cận và giúp người đọc hiểu rõ hơn bối cảnh.
+4. KHỚP MÃ ID TUYỆT ĐỐI: Mã ID trong thuộc tính 'src' của thẻ <img> phải khớp CHÍNH XÁC từng ký tự với mã ID được cung cấp ở trên (ví dụ: [${imageIds}]).
+5. KHÔNG TỰ TIỆN THÊM/BỚT: Tuyệt đối KHÔNG tự sáng tạo, phỏng đoán hay tự bịa ra bất kỳ mã ID nào khác không có trong danh sách trên. Không bỏ sót bất kỳ hình ảnh nào nếu nó thuộc trang nội dung đang được dịch.
 </available_images_and_ids>\n`;
       finalPrompt += imageGuide;
     }
