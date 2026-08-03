@@ -8,6 +8,16 @@ Link ứng dụng: https://aistudio.google.com/apps/9333e4c6-6b7a-442a-80ad-7b0a
 - silaBook: https://github.com/kiencang/silaBook
 - PDF-silaTranslator-Online: https://github.com/kiencang/PDF-silaTranslator-Online
 
+Nó cố gắng tận dụng 2 ưu điểm các các dự án trước là khả năng dịch dài và khả năng bảo toàn định dạng tốt của bản gốc.
+
+## Hướng dẫn sử dụng
+Về cơ bản ứng dụng 1987-Layout cũng có cách sử dụng khá tương đồng với silaBook. 
+- Bước 1: Nhập tên sách và tên tác giả. Nhập chính xác tên sách & tác giả giúp công cụ dịch tốt hơn;
+- Bước 2: Chia sách thành các phần nhỏ. Đây là điểm khác biệt lớn nhất với silaBook. Với 1987-Layout, hiện chúng ta chia đều sách thành các mốc cố định, mặc định là 20 trang một phần, và ngưỡng điều chỉnh là 10 - 25 trang. Chia nhỏ hơn 10 sách sẽ quá vụn, còn lớn hơn 25 khả năng vượt qua ngưỡng phản hồi của AI sẽ tăng lên (Gemini hiện chỉ cho phép trả về 65 ngàn token kết quả đầu ra);
+- Bước 3: Nhận diện đại từ. Vì 1987-Layout tập trung vào sách khoa học, phần này có thể bỏ qua và không quan trọng lắm. Tuy nhiên ứng dụng vẫn giữ lại, vì có một số dạng sách khoa học vẫn tồn tại ở dạng chuyện kể, với kiểu trình bày này, đại từ có thể vẫn có nhiều và phong phú;
+- Bước 4: Nhận diện thuật ngữ/từ khó. Một mục quan trọng đối với thể loại sách khoa học, và chắc chắn bạn cần triển khai;
+- Bước 5: Dịch, mặc định công cụ sử dụng model Pro để dịch. Model này mạnh hơn Flash về khả năng xử lý chính xác, do vậy quan trọng để đảm bảo kết quả dịch tốt hơn, do đầu vào là PDF tương đối phức tạp (đầu vào của silaBook là dạng markdown, đơn giản hơn và có thể dùng Flash vẫn có chất lượng tượng đối tốt). Ngoài ra ở bước này bạn có thể chọn `Phong cách dịch`, có 3 phong cách cơ bản, mặc định là `Khoa học nói chung`, nó phù hợp với hầu hết các tài liệu khoa học có công thức toán. Với tài liệu nào có dạng toán học phức tạp, gồm cả sơ đồ, biểu đồ toán nên chọn phong cách dịch `Toán chuyên ngành`, còn tài liệu nào đơn thuần là dạng báo cáo, không sử dụng công thức toán phức tạp trong trình bày hãy sử dụng phong cách `Khoa học xã hội`;
+
 ## Tuyên bố từ chối trách nhiệm
 Công cụ này có thể được sử dụng cho mục đích nghiên cứu và học tập cá nhân.
 
