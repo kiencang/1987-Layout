@@ -1,12 +1,12 @@
 import { Component, computed, inject, signal, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { BookStore, Chapter } from '../../core/book.store';
+import { BookStore } from '../../core/book.store';
 import { MatIconModule } from '@angular/material/icon';
 import { ToastService } from '../../core/toast.service';
 import { PdfService } from '../uploader/pdf.service';
 import { DbService } from '../../core/db';
-import { extractImagesFromPdf } from '../../core/image-processor.util';
 import { GeminiClient } from '../../core/gemini';
+import { BookSplitter } from '../../core/book/splitter';
 
 @Component({
   selector: 'app-splitter',
@@ -165,6 +165,7 @@ export class Splitter {
   pdfService = inject(PdfService);
   db = inject(DbService);
   gemini = inject(GeminiClient);
+  splitter = inject(BookSplitter);
 
   pagesPerChunk = signal(20);
   isProcessing = signal(false);
@@ -330,13 +331,6 @@ export class Splitter {
     this.isProcessing.set(true);
 
     try {
-      // Safely copy rawPdf bytes into a fresh ArrayBuffer
-      const originalArrayBuffer = new ArrayBuffer(rawPdf.byteLength);
-      new Uint8Array(originalArrayBuffer).set(rawPdf);
-      
-      let finalArrayBuffer = originalArrayBuffer;
-      let pdfDataToSave = new Uint8Array(originalArrayBuffer);
-
       const totalPdfPages = this.store.pdfPageCount() || 1;
       const start = Math.max(1, this.pdfStartPage());
       const end = Math.min(totalPdfPages, this.pdfEndPage() || totalPdfPages);
@@ -347,53 +341,20 @@ export class Splitter {
         return;
       }
 
-      // Extract pages if needed (cropped range)
-      if (start > 1 || end < totalPdfPages) {
-         const result = await this.pdfService.runWorkerTask('EXTRACT_PAGES', { arrayBuffer: originalArrayBuffer, start, end });
-         if (result.b64Data) {
-            const raw = window.atob(result.b64Data);
-            const rawLength = raw.length;
-            const array = new Uint8Array(new ArrayBuffer(rawLength));
-            for (let i = 0; i < rawLength; i++) {
-              array[i] = raw.charCodeAt(i);
-            }
-            pdfDataToSave = array;
-            finalArrayBuffer = array.buffer;
-         }
+      const { chapters, images } = await this.splitter.splitPdf(
+        rawPdf,
+        start,
+        end,
+        chunkSize,
+        totalPdfPages
+      );
+
+      if (Object.keys(images).length > 0) {
+        this.store.setImages(images);
       }
 
-      // Extract images from PDF using pdfjs-dist with 95% JPEG quality
-      try {
-        const imageBuffer = pdfDataToSave.buffer.slice(pdfDataToSave.byteOffset, pdfDataToSave.byteOffset + pdfDataToSave.byteLength);
-        const extractedImages = await extractImagesFromPdf(imageBuffer, 1024, 0.95, {}, start);
-        if (Object.keys(extractedImages).length > 0) {
-          this.store.setImages(extractedImages);
-        }
-      } catch (imgErr) {
-        console.warn('Không thể trích xuất hình ảnh từ PDF:', imgErr);
-      }
-      
-      const result = await this.pdfService.runWorkerTask('SPLIT_ALL_CHUNKS', { arrayBuffer: finalArrayBuffer, chunkSize });
-      
-      if (result.chunks && result.chunks.length > 0) {
-        const chunks: Chapter[] = result.chunks.map((item, i) => ({
-          id: `chapter_${i}_${Date.now()}`,
-          order: i,
-          title: `Phần ${i + 1} (Trang ${start + item.start - 1} - ${start + item.end - 1})`,
-          originalText: '',
-          originalPdfBase64: item.b64Data,
-          originalPdfPages: item.end - item.start + 1,
-          startPage: start + item.start - 1,
-          endPage: start + item.end - 1,
-          wordCount: 0,
-          status: 'pending',
-        }));
-
-        this.store.setChapters(chunks);
-        this.toast.success(`Đã chia thành ${chunks.length} phần thành công.`);
-      } else {
-        this.toast.error('Không tạo được các phần PDF.');
-      }
+      this.store.setChapters(chapters);
+      this.toast.success(`Đã chia thành ${chapters.length} phần thành công.`);
     } catch (e) {
       console.error('Lỗi khi cắt PDF:', e);
       const errMsg = e instanceof Error ? e.message : String(e);

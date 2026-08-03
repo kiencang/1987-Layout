@@ -1,3 +1,6 @@
+import type { Chapter } from './book.store';
+import { restoreImagePlaceholders } from './image-processor.util';
+
 export const PRINT_PDF_STYLES = `
 body {
   font-family: system-ui, -apple-system, sans-serif;
@@ -61,3 +64,78 @@ table { page-break-inside: avoid; }
   }
 }
 `;
+
+export function generateCombinedMarkdown(chapters: Chapter[], images: Record<string, string> | undefined): string {
+  let combinedMarkdown = '';
+  for (let i = 0; i < chapters.length; i++) {
+    const c = chapters[i];
+    const isTrans = c.status === 'done' && !!c.translatedText;
+    let chapterMarkdown = isTrans ? c.translatedText : c.originalText;
+    if (chapterMarkdown) {
+      chapterMarkdown = restoreImagePlaceholders(chapterMarkdown, images);
+      const prefix = isTrans ? `c${i}-t` : `c${i}-o`;
+      chapterMarkdown = chapterMarkdown.replace(/\[\^([^\]]+)\]/g, `[^${prefix}-$1]`);
+      combinedMarkdown += chapterMarkdown + '\n\n';
+    }
+  }
+  return combinedMarkdown;
+}
+
+export function generatePdfHtmlDoc(name: string, combinedMarkdown: string): string {
+  return `<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${name}_1987-Layout_vi</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+${PRINT_PDF_STYLES}
+</style>
+</head>
+<body>
+<div class="content-wrapper">
+${combinedMarkdown}
+</div>
+<script>
+  window.onload = () => {
+    setTimeout(() => {
+      window.print();
+    }, 500);
+  };
+</script>
+</body>
+</html>`;
+}
+
+export function generateHtmlDoc(name: string, combinedMarkdown: string): string {
+  const title = `${name || 'Untitled'}_1987-Layout_vi`;
+  const trimmed = combinedMarkdown.trim().toLowerCase();
+  
+  if (trimmed.startsWith('<!doctype') || trimmed.startsWith('<html')) {
+    return combinedMarkdown;
+  }
+  
+  return `<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title}</title>
+<style>
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  color: #1f2937;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+img { max-width: 100%; height: auto; }
+</style>
+</head>
+<body>
+${combinedMarkdown}
+</body>
+</html>`;
+}

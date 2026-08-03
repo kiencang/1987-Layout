@@ -2,65 +2,18 @@ import { Injectable, signal, effect, PLATFORM_ID, inject, untracked, computed } 
 import { isPlatformBrowser } from '@angular/common';
 import { DbService, Project, ProjectMeta, SplitSettings } from './db';
 import { ToastService } from './toast.service';
-import { PRINT_PDF_STYLES } from './html-export.util';
-import { restoreImagePlaceholders } from './image-processor.util';
+import { BookExporter } from './book/exporter';
+import { createNewContentVersion } from './book/version-util';
 
-export interface TranslationVersion {
-  versionNumber: number;
-  text: string;
-  model: string;
-  timestamp: number;
-  translationStyle?: TranslationStyle;
-  customGlossary?: string;
-  glossaryStatus?: 'none' | 'full' | 'filtered';
-  glossaryRatio?: number;
-  summary?: string;
-  usePronouns?: boolean;
-  pronounSnapshot?: string;
-  pronounVersionNumber?: number;
-  useGlossary?: boolean;
-  glossaryVersionNumber?: number;
-  useContextSummary?: boolean;
-  contextSummarySnapshot?: string;
-  contextSummaryChapterTitle?: string;
-  useCustomInstructions?: boolean;
-  customInstructionsSnapshot?: string;
-}
-
-export interface Chapter {
-  id: string;
-  order: number;
-  title: string;
-  originalText: string;
-  originalPdfBase64?: string;
-  originalPdfPages?: number;
-  startPage?: number;
-  endPage?: number;
-  wordCount: number;
-  translatedText?: string;
-  status: 'pending' | 'translating' | 'done' | 'error';
-  versions?: TranslationVersion[];
-  activeVersionNumber?: number;
-  latestVersionNumber?: number;
-  excludeFromTranslation?: boolean;
-}
-
-export type TranslationStyle = 'general_science' | 'social_science' | 'specialized_math';
-
-export interface TranslationConfig {
-  model: 'gemini-flash-latest' | 'gemini-pro-latest';
-  pronounGenModel?: string;
-  glossaryGenModel?: string;
-  analysisModel?: string;
-  generateSummary?: boolean;
-  translationStyle?: TranslationStyle;
-}
+import { Chapter, TranslationConfig, TranslationVersion, TranslationStyle } from './book/types';
+export type { Chapter, TranslationConfig, TranslationVersion, TranslationStyle };
 
 @Injectable({ providedIn: 'root' })
 export class BookStore {
   private platformId = inject(PLATFORM_ID);
   private db = inject(DbService);
   private toastService = inject(ToastService);
+  private exporter = inject(BookExporter);
   
   readonly currentProjectId = signal<string | null>(null);
   readonly currentProjectName = signal<string>('');
@@ -451,23 +404,11 @@ export class BookStore {
   }
 
   addPronounVersion(content: string, model: string, source: 'ai' | 'ai_edited' | 'manual' = 'ai') {
-    if (!content.trim()) return;
-    const versions = [...this.pronounVersions()];
-    const lastVersion = versions.length > 0 ? (versions[versions.length - 1].versionNumber ?? versions.length) : 0;
-    const newVersion: import('./db').ContentVersion = {
-      id: Date.now().toString() + Math.random().toString(36).substring(2, 6),
-      versionNumber: lastVersion + 1,
-      content,
-      model,
-      timestamp: Date.now(),
-      source
-    };
-    versions.push(newVersion);
-    if (versions.length > 3) {
-      versions.shift(); // remove oldest
+    const { updatedVersions, newId } = createNewContentVersion(this.pronounVersions(), content, model, source);
+    if (newId) {
+      this.pronounVersions.set(updatedVersions);
+      this.activePronounVersionId.set(newId);
     }
-    this.pronounVersions.set(versions);
-    this.activePronounVersionId.set(newVersion.id);
   }
 
   selectPronounVersion(id: string) {
@@ -475,23 +416,11 @@ export class BookStore {
   }
 
   addGlossaryVersion(content: string, model: string, source: 'ai' | 'ai_edited' | 'manual' = 'ai') {
-    if (!content.trim()) return;
-    const versions = [...this.glossaryVersions()];
-    const lastVersion = versions.length > 0 ? (versions[versions.length - 1].versionNumber ?? versions.length) : 0;
-    const newVersion: import('./db').ContentVersion = {
-      id: Date.now().toString() + Math.random().toString(36).substring(2, 6),
-      versionNumber: lastVersion + 1,
-      content,
-      model,
-      timestamp: Date.now(),
-      source
-    };
-    versions.push(newVersion);
-    if (versions.length > 3) {
-      versions.shift(); // remove oldest
+    const { updatedVersions, newId } = createNewContentVersion(this.glossaryVersions(), content, model, source);
+    if (newId) {
+      this.glossaryVersions.set(updatedVersions);
+      this.activeGlossaryVersionId.set(newId);
     }
-    this.glossaryVersions.set(versions);
-    this.activeGlossaryVersionId.set(newVersion.id);
   }
 
   selectGlossaryVersion(id: string) {
@@ -541,155 +470,16 @@ export class BookStore {
   }
 
   async exportProjectToPdf(project?: Project) {
-    if (!isPlatformBrowser(this.platformId)) return;
-
     const name = project ? project.name : this.currentProjectName();
     const chaps = project ? project.chapters : this.chapters();
-    const tempImages = window.__SILA_IMAGES__;
     const images = project ? project.images : this.images();
-    if (project) {
-      window.__SILA_IMAGES__ = project.images;
-    }
-
-    let combinedMarkdown = '';
-    for (let i = 0; i < chaps.length; i++) {
-      const c = chaps[i];
-      const isTrans = c.status === 'done' && !!c.translatedText;
-      let chapterMarkdown = isTrans ? c.translatedText : c.originalText;
-      if (chapterMarkdown) {
-        chapterMarkdown = restoreImagePlaceholders(chapterMarkdown, images);
-        const prefix = isTrans ? `c${i}-t` : `c${i}-o`;
-        chapterMarkdown = chapterMarkdown.replace(/\[\^([^\]]+)\]/g, `[^${prefix}-$1]`);
-        combinedMarkdown += chapterMarkdown + '\n\n';
-      }
-    }
-
-    try {
-      let htmlBody = '';
-      try {
-        htmlBody = combinedMarkdown;
-      } finally {
-        if (project) {
-          window.__SILA_IMAGES__ = tempImages;
-        }
-      }
-      const htmlDoc = `<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${name}_1987-Layout_vi</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-${PRINT_PDF_STYLES}
-</style>
-</head>
-<body>
-<div class="content-wrapper">
-${htmlBody}
-</div>
-<script>
-  window.onload = () => {
-    setTimeout(() => {
-      window.print();
-    }, 500);
-  };
-</script>
-</body>
-</html>`;
-
-      const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      
-      const newWindow = window.open(url, '_blank');
-      if (!newWindow) {
-        this.toastService.error('Vui lòng cho phép popup để nhận PDF');
-        return;
-      }
-      this.toastService.success('Đang tạo bản PDF chuẩn bị tải...');
-    } catch (e: unknown) {
-      console.error('Error opening PDF print:', e);
-      this.toastService.error('Lỗi khi tải PDF');
-    }
+    await this.exporter.exportToPdf(name, chaps, images, project);
   }
 
   async exportProjectToHtml(project?: Project) {
-    if (!isPlatformBrowser(this.platformId)) return;
-
     const name = project ? project.name : this.currentProjectName();
     const chaps = project ? project.chapters : this.chapters();
-    const tempImages = window.__SILA_IMAGES__;
     const images = project ? project.images : this.images();
-    if (project) {
-      window.__SILA_IMAGES__ = project.images;
-    }
-
-    let combinedMarkdown = '';
-    for (let i = 0; i < chaps.length; i++) {
-      const c = chaps[i];
-      const isTrans = c.status === 'done' && !!c.translatedText;
-      let chapterMarkdown = isTrans ? c.translatedText : c.originalText;
-      if (chapterMarkdown) {
-        chapterMarkdown = restoreImagePlaceholders(chapterMarkdown, images);
-        const prefix = isTrans ? `c${i}-t` : `c${i}-o`;
-        chapterMarkdown = chapterMarkdown.replace(/\[\^([^\]]+)\]/g, `[^${prefix}-$1]`);
-        combinedMarkdown += chapterMarkdown + '\n\n';
-      }
-    }
-
-    try {
-      let htmlBody = '';
-      try {
-        htmlBody = combinedMarkdown;
-      } finally {
-        if (project) {
-          window.__SILA_IMAGES__ = tempImages;
-        }
-      }
-      const title = `${name || 'Untitled'}_1987-Layout_vi`;
-      const trimmed = htmlBody.trim().toLowerCase();
-      let htmlDoc = '';
-
-      if (trimmed.startsWith('<!doctype') || trimmed.startsWith('<html')) {
-        htmlDoc = htmlBody;
-      } else {
-        htmlDoc = `<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${title}</title>
-<style>
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  line-height: 1.6;
-  color: #1f2937;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
-img { max-width: 100%; height: auto; }
-</style>
-</head>
-<body>
-${htmlBody}
-</body>
-</html>`;
-      }
-
-      const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${name}_1987-Layout_vi.html`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      this.toastService.success(this.toastService.Messages.EXPORT_HTML_SUCCESS);
-    } catch (e: unknown) {
-      console.error('Error exporting to HTML:', e);
-      this.toastService.error(this.toastService.Messages.EXPORT_HTML_ERROR);
-    }
+    await this.exporter.exportToHtml(name, chaps, images, project);
   }
 }
