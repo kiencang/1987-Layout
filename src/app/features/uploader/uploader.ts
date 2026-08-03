@@ -19,7 +19,7 @@ import { PdfService } from './pdf.service';
       <div class="w-full max-w-2xl">
         
         <div 
-          class="border-2 border-dashed border-zinc-300 rounded-2xl py-6 px-8 text-center hover:bg-zinc-50 hover:border-zinc-400 transition-colors cursor-pointer relative group"
+          class="border-2 border-dashed border-indigo-300 rounded-2xl py-16 px-12 text-center hover:bg-indigo-50/50 hover:border-indigo-500 transition-colors cursor-pointer relative group min-h-[320px] flex items-center justify-center"
           role="button"
           tabindex="0"
           (keydown.enter)="fileInput.click()"
@@ -27,8 +27,8 @@ import { PdfService } from './pdf.service';
           (dragover)="onDragOver($event)"
           (dragleave)="onDragLeave($event)"
           (drop)="onDrop($event)"
-          [class.bg-zinc-50]="isDragging"
-          [class.border-zinc-400]="isDragging"
+          [class.bg-indigo-50]="isDragging"
+          [class.border-indigo-500]="isDragging"
           [class.opacity-50]="store.isConverting()"
           [class.pointer-events-none]="store.isConverting()"
         >
@@ -47,15 +47,15 @@ import { PdfService } from './pdf.service';
               <p class="text-sm text-zinc-500">Quá trình này có thể mất một lúc tùy thuộc vào dung lượng file.</p>
             </div>
           } @else {
-            <div class="flex flex-col items-center space-y-3">
-              <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
-                <mat-icon class="!text-2xl !w-6 !h-6 !flex !items-center !justify-center">upload_file</mat-icon>
+            <div class="flex flex-col items-center space-y-4">
+              <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
+                <mat-icon class="!text-4xl !w-10 !h-10 !flex !items-center !justify-center">upload_file</mat-icon>
               </div>
-              <div class="w-full">
-                <h3 class="text-lg font-semibold text-zinc-900">Tải lên cuốn sách PDF cần dịch</h3>
-                <p class="text-xs text-zinc-500 mt-0.5">Click chọn hoặc kéo thả vào đây.</p>
-                <div class="flex flex-wrap gap-1.5 justify-center mt-2.5">
-                  <span class="px-2.5 py-1 bg-zinc-100 group-hover:bg-zinc-200 text-zinc-600 group-hover:text-zinc-900 text-xs rounded font-mono transition-colors">PDF (max 200MB)</span>
+              <div class="w-full mt-4">
+                <h3 class="text-xl font-semibold text-zinc-900">Tải lên sách định dạng PDF cần dịch</h3>
+                <p class="text-sm text-zinc-500 mt-2">Click chọn hoặc kéo thả vào đây.</p>
+                <div class="flex flex-wrap gap-1.5 justify-center mt-4">
+                  <span class="px-3 py-1.5 bg-indigo-50 group-hover:bg-indigo-100 text-indigo-700 font-medium text-sm rounded font-mono transition-colors">PDF (max 200MB)</span>
                 </div>
               </div>
             </div>

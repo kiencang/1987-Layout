@@ -346,9 +346,8 @@ export class GlossarySetup {
         const batch = chunksToProcess.slice(i, i + maxConcurrent);
         const promises = batch.map(async chunk => {
           try {
-            const isPdf = !!chunk.pdfBase64;
-            const inputData = isPdf ? chunk.pdfBase64! : chunk.text;
-            const result = await this.gemini.generateGlossaryRaw(inputData, isPdf, task.model, this.store.bookTitle(), this.store.author());
+            const inputData = chunk.pdfBase64! || chunk.text;
+            const result = await this.gemini.generateGlossaryRaw(inputData, task.model, this.store.bookTitle(), this.store.author());
             chunk.result = result;
             chunk.status = 'completed';
           } catch (err) {

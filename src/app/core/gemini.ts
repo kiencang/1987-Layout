@@ -114,7 +114,7 @@ export class GeminiClient {
     }
   }
 
-  async filterGlossary(text: string, glossaryTable: string, isPdf = false, pdfBase64?: string): Promise<{ text: string; usedCount: number; totalCount: number }> {
+  async filterGlossary(glossaryTable: string, pdfBase64: string): Promise<{ text: string; usedCount: number; totalCount: number }> {
     try {
       const lines = glossaryTable.split('\n').filter(l => l.trim().startsWith('|'));
       if (lines.length <= 2) return { text: glossaryTable, usedCount: 0, totalCount: 0 };
@@ -140,14 +140,13 @@ export class GeminiClient {
       if (compactList.length === 0) return { text: '', usedCount: 0, totalCount: 0 };
       if (compactList.length <= 100) return { text: glossaryTable, usedCount: compactList.length, totalCount: compactList.length };
 
-      const si = await this.loadPromptText('/prompts/filter_glossary_system_instruction.md') || 'You are an expert terminology extractor. Your task is to filter a given list of glossary terms and identify which ones are present in the provided text block or PDF document. Return ONLY a valid JSON array of objects with "english" and "pos" properties.';
+      const si = await this.loadPromptText('/prompts/filter_glossary_system_instruction.md') || 'You are an expert terminology extractor. Your task is to filter a given list of glossary terms and identify which ones are present in the provided document. Return ONLY a valid JSON array of objects with "english" and "pos" properties.';
       let prompt = await this.loadPromptText('/prompts/filter_glossary_prompt.md');
       if (!prompt) {
-        prompt = "Glossary Terms:\n{{danh sách thuật ngữ}}\n\nText Block:\n{{nội dung cần dịch}}";
+        prompt = "Glossary Terms:\n{{danh sách thuật ngữ}}";
       }
       
       prompt = prompt.replace('{{danh sách thuật ngữ}}', JSON.stringify(compactList));
-      prompt = prompt.replace('{{nội dung cần dịch}}', text || '(Nội dung đính kèm trong tệp PDF)');
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const filterConfig: any = {
@@ -170,9 +169,7 @@ export class GeminiClient {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const contentsPayload: any[] = [];
-      if (isPdf && pdfBase64) {
-        contentsPayload.push({ inlineData: { data: pdfBase64, mimeType: 'application/pdf' } });
-      }
+      contentsPayload.push({ inlineData: { data: pdfBase64, mimeType: 'application/pdf' } });
       contentsPayload.push({ text: prompt });
 
       const response = await this.ai.models.generateContent({
@@ -212,7 +209,7 @@ export class GeminiClient {
     }
   }
 
-  async normalizePronouns(inputData: string, isPdf: boolean, rawPronounTable: string, model: string, bookTitle: string, author: string): Promise<string> {
+  async normalizePronouns(pdfBase64: string, rawPronounTable: string, model: string, bookTitle: string, author: string): Promise<string> {
     try {
       if (!rawPronounTable.trim()) return '';
       
@@ -228,12 +225,8 @@ export class GeminiClient {
       
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const contents: any[] = [];
-      if (isPdf) {
-         contents.push({ inlineData: { data: inputData, mimeType: 'application/pdf' } });
-         contents.push({ text: prompt });
-      } else {
-         contents.push({ text: prompt });
-      }
+      contents.push({ inlineData: { data: pdfBase64, mimeType: 'application/pdf' } });
+      contents.push({ text: prompt });
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const filterConfig: any = {
@@ -325,7 +318,7 @@ export class GeminiClient {
 
     if (useGlossary && glossaryTable) {
       try {
-        const filterRes = await this.filterGlossary('', glossaryTable, true, pdfBase64);
+        const filterRes = await this.filterGlossary(glossaryTable, pdfBase64!);
         if (filterRes.text) {
           activeGlossary = filterRes.text;
           glossaryStatus = filterRes.usedCount < filterRes.totalCount ? 'filtered' : 'full';
@@ -476,7 +469,7 @@ TUYỆT ĐỐI KHÔNG được phát sinh hay tự bịa ra ID mới, chỉ sử
     return { text: result, customGlossary: activeGlossary || undefined, glossaryStatus, glossaryRatio, images: activeImages };
   }
 
-  async generatePronounsRaw(inputData: string, isPdf: boolean, model: string, bookTitle = '', author = ''): Promise<{ originalName?: string; gender?: string; ageGroup?: string; role?: string; translatedTitles?: string; narratorPronoun?: string; dialoguePronouns?: string; reasoning?: string; notes?: string; }[]> {
+  async generatePronounsRaw(pdfBase64: string, model: string, bookTitle = '', author = ''): Promise<{ originalName?: string; gender?: string; ageGroup?: string; role?: string; translatedTitles?: string; narratorPronoun?: string; dialoguePronouns?: string; reasoning?: string; notes?: string; }[]> {
     const psi = await this.loadPromptText('/prompts/pronouns_system_instructions.md');
     const pp = await this.loadPromptText('/prompts/pronouns_prompt.md');
 
@@ -487,12 +480,8 @@ TUYỆT ĐỐI KHÔNG được phát sinh hay tự bịa ra ID mới, chỉ sử
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const contents: any[] = [];
-    if (isPdf) {
-       contents.push({ inlineData: { data: inputData, mimeType: 'application/pdf' } });
-       contents.push({ text: finalPrompt });
-    } else {
-       contents.push({ text: finalPrompt });
-    }
+    contents.push({ inlineData: { data: pdfBase64, mimeType: 'application/pdf' } });
+    contents.push({ text: finalPrompt });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const configArgs: any = {
@@ -530,8 +519,8 @@ TUYỆT ĐỐI KHÔNG được phát sinh hay tự bịa ra ID mới, chỉ sử
     }
   }
 
-  async generatePronouns(inputData: string, isPdf: boolean, model: string, bookTitle = '', author = ''): Promise<string> {
-    const arr = await this.generatePronounsRaw(inputData, isPdf, model, bookTitle, author);
+  async generatePronouns(pdfBase64: string, model: string, bookTitle = '', author = ''): Promise<string> {
+    const arr = await this.generatePronounsRaw(pdfBase64, model, bookTitle, author);
     if (arr.length > 0) {
       let md = '| Nhân vật (Original) | Giới tính | Ước lượng độ tuổi | Đặc điểm & Vai trò | Xưng hô / Tước vị (Dịch) | Ngôi thứ 3 (Narrator) | Xưng - Hô (Với người khác) | Lý do | Ghi chú |\n|---|---|---|---|---|---|---|---|---|\n';
       for (const pt of arr) {
@@ -542,7 +531,7 @@ TUYỆT ĐỐI KHÔNG được phát sinh hay tự bịa ra ID mới, chỉ sử
     return '';
   }
 
-  async generateGlossaryRaw(inputData: string, isPdf: boolean, model: string, bookTitle = '', author = ''): Promise<{ english?: string; pos?: string; vietnamese?: string; contextNotes?: string; }[]> {
+  async generateGlossaryRaw(pdfBase64: string, model: string, bookTitle = '', author = ''): Promise<{ english?: string; pos?: string; vietnamese?: string; contextNotes?: string; }[]> {
     const gsi = await this.loadPromptText('/prompts/glossary_system_instructions.md');
     const gp = await this.loadPromptText('/prompts/glossary_prompt.md');
 
@@ -553,12 +542,8 @@ TUYỆT ĐỐI KHÔNG được phát sinh hay tự bịa ra ID mới, chỉ sử
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const contents: any[] = [];
-    if (isPdf) {
-       contents.push({ inlineData: { data: inputData, mimeType: 'application/pdf' } });
-       contents.push({ text: finalPrompt });
-    } else {
-       contents.push({ text: finalPrompt });
-    }
+    contents.push({ inlineData: { data: pdfBase64, mimeType: 'application/pdf' } });
+    contents.push({ text: finalPrompt });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const configArgs: any = {
@@ -596,8 +581,8 @@ TUYỆT ĐỐI KHÔNG được phát sinh hay tự bịa ra ID mới, chỉ sử
     }
   }
 
-  async generateGlossary(inputData: string, isPdf: boolean, model: string, bookTitle = '', author = ''): Promise<string> {
-    const arr = await this.generateGlossaryRaw(inputData, isPdf, model, bookTitle, author);
+  async generateGlossary(pdfBase64: string, model: string, bookTitle = '', author = ''): Promise<string> {
+    const arr = await this.generateGlossaryRaw(pdfBase64, model, bookTitle, author);
     if (arr.length > 0) {
       let md = '| Tiếng Anh | Từ loại | Tiếng Việt | Ghi chú văn cảnh |\n|---|---|---|---|\n';
       for (const pt of arr) {
@@ -608,15 +593,20 @@ TUYỆT ĐỐI KHÔNG được phát sinh hay tự bịa ra ID mới, chỉ sử
     return '';
   }
 
-  async analyzeBook(text: string, model: string, bookTitle = '', author = ''): Promise<string> {
+  async analyzeBook(pdfBase64: string, model: string, bookTitle = '', author = ''): Promise<string> {
     const si = await this.loadPromptText('/prompts/book_analysis_system_instructions.md');
     const p = await this.loadPromptText('/prompts/book_analysis_prompt.md');
 
-    let finalPrompt = p || `Phân tích văn bản và trả về JSON cấu hình theo yêu cầu.\n\n<source_text>\n{{nội dung}}\n</source_text>`;
+    let finalPrompt = p || `Phân tích văn bản và trả về JSON cấu hình theo yêu cầu.`;
     
     finalPrompt = finalPrompt.replace('{{tên sách}}', bookTitle || 'Không rõ');
     finalPrompt = finalPrompt.replace('{{tên tác giả}}', author || 'Vô danh');
-    finalPrompt = finalPrompt.replace('{{nội dung}}', text);
+    finalPrompt = finalPrompt.replace('{{nội dung}}', ''); // In case it's still there
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const contents: any[] = [];
+    contents.push({ inlineData: { data: pdfBase64, mimeType: 'application/pdf' } });
+    contents.push({ text: finalPrompt });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const configArgs: any = {
@@ -631,7 +621,7 @@ TUYỆT ĐỐI KHÔNG được phát sinh hay tự bịa ra ID mới, chỉ sử
 
     const response = await this.ai.models.generateContent({
       model: model,
-      contents: [{ text: finalPrompt }],
+      contents: contents,
       config: configArgs
     });
 

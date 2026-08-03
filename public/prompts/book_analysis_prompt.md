@@ -8,7 +8,3 @@ LƯU Ý QUAN TRỌNG:
 - Tên sách: {{tên sách}}
 - Tác giả: {{tên tác giả}}
 </metadata>
-
-<source_text>
-{{nội dung}}
-</source_text>

@@ -11,10 +11,6 @@ Nhiệm vụ của bạn là gộp chúng lại, chọn ra phương án xưng h�
 {{bảng đại từ}}
 </raw_pronoun_table>
 
-<full_book_content>
-{{nội dung}}
-</full_book_content>
-
 Vui lòng trả về kết quả là một bảng Markdown định dạng đúng theo cấu trúc sau (loại bỏ đi các dòng thừa, trùng lặp và nhất quán nội dung):
 
 | Nhân vật (Original) | Giới tính | Ước lượng độ tuổi | Đặc điểm & Vai trò | Xưng hô / Tước vị (Dịch) | Ngôi thứ 3 (Narrator) | Xưng - Hô (Với người khác) | Lý do | Ghi chú |

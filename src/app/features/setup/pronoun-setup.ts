@@ -316,9 +316,8 @@ export class PronounSetup {
         const batch = chunksToProcess.slice(i, i + maxConcurrent);
         const promises = batch.map(async chunk => {
           try {
-            const isPdf = !!chunk.pdfBase64;
-            const inputData = isPdf ? chunk.pdfBase64! : chunk.text;
-            const result = await this.gemini.generatePronounsRaw(inputData, isPdf, task.model, this.store.bookTitle(), this.store.author());
+            const inputData = chunk.pdfBase64! || chunk.text;
+            const result = await this.gemini.generatePronounsRaw(inputData, task.model, this.store.bookTitle(), this.store.author());
             chunk.result = result;
             chunk.status = 'completed';
           } catch (err) {
@@ -361,10 +360,10 @@ export class PronounSetup {
               binary += String.fromCharCode.apply(null, Array.from(fullPdf.subarray(i, i + chunkSize)));
             }
             const fullPdfBase64 = window.btoa(binary);
-            result = await this.gemini.normalizePronouns(fullPdfBase64, true, rawResult, task.model, this.store.bookTitle(), this.store.author());
+            result = await this.gemini.normalizePronouns(fullPdfBase64, rawResult, task.model, this.store.bookTitle(), this.store.author());
         } else {
             const fullText = this.getFullText();
-            result = await this.gemini.normalizePronouns(fullText, false, rawResult, task.model, this.store.bookTitle(), this.store.author());
+            result = await this.gemini.normalizePronouns(fullText, rawResult, task.model, this.store.bookTitle(), this.store.author());
         }
 
         this.draftPronounTable.set(result);
