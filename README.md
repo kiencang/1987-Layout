@@ -2,7 +2,7 @@
 
 Dịch file PDF dài từ tiếng Anh sang tiếng Việt. Có khả năng giữ lại ảnh & công thức toán.
 
-Link ứng dụng: https://aistudio.google.com/apps/9333e4c6-6b7a-442a-80ad-7b0a263c44ff?showPreview=true&showAssistant=true&fullscreenApplet=true
+Link ứng dụng: https://aistudio.google.com/apps/9333e4c6-6b7a-442a-80ad-7b0a263c44ff?showPreview=true&showAssistant=true&fullscreenApplet=true (sử dụng được Key miễn phí để dịch);
 
 Ý tưởng của dự án này được phát triển dựa trên 2 dự án trước đó:
 - silaBook: https://github.com/kiencang/silaBook
