@@ -2,7 +2,7 @@
 
 Dịch file PDF dài từ tiếng Anh sang tiếng Việt. Có khả năng giữ lại ảnh & công thức toán.
 
-- Link app: https://aistudio.google.com/apps/9333e4c6-6b7a-442a-80ad-7b0a263c44ff?showPreview=true&showAssistant=true&fullscreenApplet=true (sử dụng được Key miễn phí để dịch);
+- **Link app**: https://aistudio.google.com/apps/9333e4c6-6b7a-442a-80ad-7b0a263c44ff?showPreview=true&showAssistant=true&fullscreenApplet=true (sử dụng được Key miễn phí để dịch);
 - Link web: https://1987-layout.wpsila.com/ (Key trả phí mới dùng được);
 
 Chất lượng của 2 bản trên như nhau, chỉ khác là bản trên AI Studio thì tận dụng được API Key miễn phí của Gemini.
@@ -15,7 +15,7 @@ Chất lượng của 2 bản trên như nhau, chỉ khác là bản trên AI St
 
 Nó cố gắng tận dụng 2 ưu điểm các các dự án trước là khả năng dịch dài và khả năng bảo toàn định dạng tốt của bản gốc.
 
-Lưu ý là mặc dù có nhiều điểm tương đồng 1987-Layout và silaBook không thay thế nhau hoàn toàn và không có cái nào `tốt hơn hẳn`. Bạn dùng công cụ nào sẽ tùy trường hợp cụ thể và mục đích. 
+Lưu ý là, mặc dù có nhiều điểm tương đồng, 1987-Layout và silaBook không thay thế nhau hoàn toàn và không có cái nào `tốt hơn hẳn`. Bạn dùng công cụ nào sẽ tùy trường hợp cụ thể và mục đích. 
 
 Nếu mục đích của bạn là dịch các cuốn sách khoa học dài và bạn muốn bảo toàn định dạng tốt nhất có thể, đặc biệt là công thức toán học, thế thì 1987-Layout sẽ là lựa chọn thích hợp nhất.
 
