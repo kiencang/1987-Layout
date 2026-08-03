@@ -283,8 +283,9 @@ export class Translator {
         this.store.setImages({ ...currentImages, ...updatedImages });
       }
       
+      const isLastChapter = chapterIndex >= 0 && chapterIndex === chapters.length - 1;
       let summaryText: string | undefined = undefined;
-      if (config.generateSummary !== false) {
+      if (config.generateSummary !== false && !isLastChapter) {
         summaryText = await this.gemini.summarizeTranslation(translatedText, config.model);
       }
       
