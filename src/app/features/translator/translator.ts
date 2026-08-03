@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { TranslatorConfigComponent } from './components/translator-config';
 import { ChapterItemComponent } from './components/chapter-item';
+import JSZip from 'jszip';
 
 @Component({
   selector: 'app-translator',
@@ -107,6 +108,19 @@ import { ChapterItemComponent } from './components/chapter-item';
             </button>
           }
         </div>
+
+        @if (canDownloadAll()) {
+          <button 
+            (click)="downloadAllAsZip()"
+            [disabled]="store.isTranslatingAny()"
+            [class.opacity-50]="store.isTranslatingAny()"
+            [class.cursor-not-allowed]="store.isTranslatingAny()"
+            class="bg-emerald-600 hover:bg-emerald-750 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition-colors flex items-center space-x-2 shrink-0 self-center"
+          >
+            <mat-icon>file_download</mat-icon>
+            <span>Tải về toàn bộ sách</span>
+          </button>
+        }
       </div>
 
       <!-- Chapter List -->
@@ -146,10 +160,54 @@ export class Translator {
     return 'partial';
   });
 
+  canDownloadAll = computed(() => {
+    const chapters = this.store.chapters();
+    if (chapters.length === 0) return false;
+    const activeChapters = chapters.filter(c => !c.excludeFromTranslation);
+    if (activeChapters.length === 0) return false;
+    return activeChapters.every(c => c.status === 'done' && !!c.translatedText);
+  });
+
   handleNavigate(index: number) {
     const items = this.chapterItems.toArray();
     if (items[index]) {
       items[index].openFullscreen();
+    }
+  }
+
+  async downloadAllAsZip() {
+    const chapters = this.store.chapters().filter(c => !c.excludeFromTranslation && c.status === 'done' && !!c.translatedText);
+    if (chapters.length === 0) {
+      this.toast.error('Không tìm thấy nội dung bản dịch nào để tải về.');
+      return;
+    }
+
+    try {
+      const zip = new JSZip();
+      chapters.forEach((chapter, index) => {
+        const sanitizedTitle = chapter.title.replace(/[\\/:*?"<>|]/g, '_');
+        const filename = `${String(index + 1).padStart(2, '0')} - ${sanitizedTitle}.html`;
+        zip.file(filename, chapter.translatedText || '');
+      });
+
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      
+      const bookTitle = this.store.bookTitle() || 'Ban_dich_sach';
+      const sanitizedBookTitle = bookTitle.replace(/[\\/:*?"<>|]/g, '_');
+      a.download = `1987-Layout_${sanitizedBookTitle}_ban_dich.zip`;
+      
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      this.toast.success('Đã tải về toàn bộ sách dưới dạng tệp ZIP thành công!');
+    } catch (error) {
+      console.error('Lỗi khi nén file zip:', error);
+      this.toast.error('Có lỗi xảy ra khi tạo tệp ZIP tải về.');
     }
   }
 

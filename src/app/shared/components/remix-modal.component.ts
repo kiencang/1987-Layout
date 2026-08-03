@@ -28,7 +28,7 @@ import { MatIconModule } from '@angular/material/icon';
             Chỉ ứng dụng dùng trên AI Studio mới dùng ngưỡng miễn phí thoải mái, bạn hãy remix app này về AI Studio để tận dụng ngưỡng Free từ Gemini. <a href="https://aistudio.google.com/apps/9333e4c6-6b7a-442a-80ad-7b0a263c44ff?showPreview=true&showAssistant=true&fullscreenApplet=true" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-750 font-medium hover:underline">Bạn vào app</a>, rồi remix như hình bên dưới:
           </p>
           
-          <img src="/remix-layout.png" alt="Hướng dẫn remix ứng dụng" class="w-full rounded-xl border border-zinc-200 shadow-sm" referrerpolicy="no-referrer" />
+          <img src="/cach-remix.png" alt="Hướng dẫn remix ứng dụng" class="w-full rounded-xl border border-zinc-200 shadow-sm" referrerpolicy="no-referrer" />
           <p class="text-sm text-zinc-600 leading-relaxed mt-4">
             Thi thoảng bạn hãy vào app gốc để remix lại nếu bạn thấy app gốc ra phiên bản mới và bạn muốn dùng phiên bản mới nhất đó.
           </p>
