@@ -18,7 +18,7 @@ import * as XLSX from 'xlsx';
       <div class="max-w-5xl mx-auto lg:px-8 px-4 flex items-center justify-between mb-8">
         <div>
           <h2 class="text-2xl font-bold text-zinc-900">Thiết lập Bảng Thuật Ngữ / Từ Khó (Tùy chọn)</h2>
-          <p class="text-zinc-500 mt-1">Sử dụng mô hình AI mạnh để quét cuốn sách và trích xuất bảng thuật ngữ/từ khó dịch. Giúp bản dịch có chất lượng cao và thống nhất hơn, đặc biệt cần thiết với sách khó dịch. Mặc dù đây là tùy chọn, không bắt buộc, nhưng khi tạo thường cho kết quả tốt hơn với bất kỳ thể loại sách nào.</p>
+          <p class="text-zinc-500 mt-1">Sử dụng mô hình AI mạnh để quét cuốn sách và trích xuất bảng thuật ngữ/từ khó dịch. Giúp bản dịch có chất lượng cao và thống nhất hơn. <strong class="font-semibold text-zinc-700">Đối với các sách khoa học, bạn không nên bỏ qua bước này.</strong></p>
           <p class="text-zinc-500 mt-2">Việc phân tích đầy đủ cả cuốn sách thường tốn thời gian từ 3 - 10 phút, tùy độ dài & tùy model AI. Nó cũng đặc biệt tốn token, nên nếu bạn dùng model Pro sẽ hết ngưỡng miễn phí sớm, bạn có thể dùng model Flash cho nhiệm vụ này. Đối với phân tích từ khó, model Flash cho chất lượng rất tốt, không kém nhiều so với model Pro.</p>
         </div>
       </div>
@@ -84,7 +84,7 @@ import * as XLSX from 'xlsx';
         <div class="bg-white p-4 lg:p-5 rounded-xl border border-zinc-200 flex flex-col sm:flex-row gap-4 sm:items-start justify-between shadow-sm">
           <div>
             <h3 class="font-bold text-zinc-900">Sử dụng danh sách thuật ngữ của bạn [Khi bạn không muốn AI tạo]</h3>
-            <p class="text-sm text-zinc-500 mt-1">Tải lên file Excel (.xlsx) chứa danh sách từ khó của riêng bạn để ứng dụng sử dụng cho bản dịch. Trước hết hãy "Tải file mẫu" về để có mẫu chuẩn. Lưu ý: Phải có nội dung Tiếng Anh / Từ loại / Tiếng Việt cho các hàng thông tin, riêng Ghi chú văn cảnh không bắt buộc phải có nội dung.</p>
+            <p class="text-sm text-zinc-500 mt-1">Nếu bạn không muốn AI tạo danh sách thuật ngữ, bạn có thể tự tải lên file Excel (.xlsx) chứa danh sách từ khó của riêng bạn để ứng dụng sử dụng cho bản dịch. Trước hết hãy "Tải file mẫu" về để có mẫu chuẩn. Lưu ý: Phải có nội dung Tiếng Anh / Từ loại / Tiếng Việt cho các hàng thông tin, riêng Ghi chú văn cảnh không bắt buộc phải có nội dung.</p>
           </div>
           <div class="flex flex-col gap-3 w-full sm:w-[220px] shrink-0">
             <button 

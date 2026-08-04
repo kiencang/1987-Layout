@@ -115,7 +115,7 @@ import { BookSplitter } from '../../core/book/splitter';
         <h3 class="text-lg font-semibold text-zinc-900 mb-2">Cài đặt chia sách</h3>
         
         <div class="w-full">
-          <p class="text-sm text-zinc-500 mb-4">Ứng dụng sẽ chia cuốn sách thành nhiều phần nhỏ, mỗi phần sẽ có số lượng trang như bạn chọn bên dưới, mặc định 20 trang thường ổn, tuy nhiên bạn có thể điều chỉnh tăng giảm nếu muốn. Các cuốn sách càng nhiều ảnh, giá trị này để thấp sẽ tốt hơn để giảm gánh nặng cho công cụ dịch.</p>
+          <p class="text-sm text-zinc-500 mb-4">Ứng dụng sẽ <strong>chia cuốn sách thành nhiều phần nhỏ</strong>, mỗi phần sẽ có số lượng trang như bạn chọn bên dưới, mặc định 20 trang thường ổn, tuy nhiên bạn có thể điều chỉnh tăng giảm nếu muốn. Các cuốn sách nhiều ảnh hoặc/và có cấu trúc phức tạp, giá trị này để thấp hơn đôi chút có thể sẽ tốt hơn.</p>
           <label for="pagesPerChunkInput" class="block text-sm font-medium text-zinc-700 mb-2">Số trang mỗi phần (chunk):</label>
           <div class="flex items-center gap-3 max-w-xs">
             <div class="flex-1 flex items-center bg-white border border-zinc-200 rounded-lg px-3 py-2 shadow-sm focus-within:border-indigo-500 transition-colors">

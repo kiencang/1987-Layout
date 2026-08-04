@@ -57,6 +57,9 @@ import { PdfService } from './pdf.service';
                 <div class="flex flex-wrap gap-1.5 justify-center mt-4">
                   <span class="px-3 py-1.5 bg-indigo-50 group-hover:bg-indigo-100 text-indigo-700 font-medium text-sm rounded font-mono transition-colors">PDF (max 200MB)</span>
                 </div>
+                <p class="text-xs text-zinc-500 max-w-2xl mx-auto mt-3 px-4 leading-relaxed text-justify">
+                  Chỉ file <strong class="font-semibold text-zinc-700">PDF tiêu chuẩn</strong> (hiểu nôm na là có thể dùng chuột copy văn bản) thì mới tách được ảnh và dùng công cụ này hiệu quả. Đối với file PDF dạng scan bạn nên sử dụng dụng công cụ như PaddleOCR (hoặc tương tự) để chuyển sang định dạng khác, rồi dùng công cụ <a href="https://github.com/kiencang/silaBook" target="_blank" rel="noopener noreferrer" class="text-indigo-600 underline hover:text-indigo-800 font-medium" (click)="$event.stopPropagation()">silaBook</a> để dịch.
+                </p>
               </div>
             </div>
           }
