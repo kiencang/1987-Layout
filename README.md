@@ -8,7 +8,7 @@ Dịch file PDF dài từ tiếng Anh sang tiếng Việt. Có khả năng giữ
 Chất lượng của 2 bản trên như nhau, chỉ khác là bản trên AI Studio thì tận dụng được API Key miễn phí của Gemini.
 
 <p align="center">
-  <img src="images/dich-thanh-cong.png" alt="Dịch thành công">
+  <img src="images/buoc-5.png" alt="Dịch thành công">
    <br><em>Giao diện bước 5, bước cuối trong khi dịch.</em>
 </p>
 
