@@ -1,6 +1,6 @@
 # 1987-Layout
 
-Dịch file PDF dài từ tiếng Anh sang tiếng Việt. Có khả năng giữ lại ảnh & công thức toán.
+Dịch file PDF dài từ tiếng Anh sang tiếng Việt. Có khả năng giữ lại ảnh & công thức toán. Bản dịch trả về là định dạng HTML (web), có thể dễ dàng chia sẻ và đọc được trên bất cứ trình duyệt nào.
 
 - **Link app**: https://aistudio.google.com/apps/9333e4c6-6b7a-442a-80ad-7b0a263c44ff?showPreview=true&showAssistant=true&fullscreenApplet=true (sử dụng được Key miễn phí để dịch);
 - Link web: https://1987-layout.wpsila.com/ (Key trả phí mới dùng được);
