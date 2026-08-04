@@ -6,8 +6,7 @@ import {
   generatePronounsRaw,
   generatePronouns,
   generateGlossaryRaw,
-  generateGlossary,
-  analyzeBook
+  generateGlossary
 } from './setup-generator';
 import { filterGlossary, normalizePronouns } from './glossary-filter';
 import { translateChapter, summarizeTranslation } from './translation-engine';
@@ -126,10 +125,6 @@ export class GeminiClient {
 
   async generateGlossary(pdfBase64: string, model: string, bookTitle = '', author = ''): Promise<string> {
     return generateGlossary(this.ai, this.loadPromptText.bind(this), pdfBase64, model, bookTitle, author);
-  }
-
-  async analyzeBook(pdfBase64: string, model: string, bookTitle = '', author = ''): Promise<string> {
-    return analyzeBook(this.ai, this.loadPromptText.bind(this), pdfBase64, model, bookTitle, author);
   }
 
   public htmlToMarkdown(html: string): string {
