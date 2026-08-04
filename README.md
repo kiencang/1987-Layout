@@ -7,6 +7,11 @@ Dịch file PDF dài từ tiếng Anh sang tiếng Việt. Có khả năng giữ
 
 Chất lượng của 2 bản trên như nhau, chỉ khác là bản trên AI Studio thì tận dụng được API Key miễn phí của Gemini.
 
+<p align="center">
+  <img src="images/dich-thanh-cong.png" alt="Dịch thành công">
+   <br><em>Giao diện bước 5, bước cuối trong khi dịch.</em>
+</p>
+
 **Lưu ý**: Công cụ này cần các file PDF đầu vào là dạng "tiêu chuẩn" (đại khái là có thể dùng chuột copy được văn bản) thì nó mới tách ảnh trong bản gốc dễ dàng được. Nói cách khác, các file PDF scan nằm ngoài khả năng của công cụ này. Với file PDF scan, cách khả thi nhất là sử dụng các ứng dụng chuyển đổi định dạng mạnh như PaddleOCR (https://aistudio.baidu.com/paddleocr) để chuyển nó thành markdown (vẫn giữ được ảnh), rồi dùng công cụ silaBook (https://github.com/kiencang/silaBook/) để dịch.
 
 ---
