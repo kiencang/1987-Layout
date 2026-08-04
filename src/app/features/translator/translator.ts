@@ -212,6 +212,8 @@ export class Translator {
   }
 
   async translateSingle(chapter: Chapter): Promise<boolean> {
+    const startProjectId = this.store.currentProjectId();
+    
     const userKey = localStorage.getItem('user_gemini_api_key');
     if (!userKey?.trim()) {
       this.toast.error('Vui lòng thêm GEMINI API KEY CÁ NHÂN (biểu tượng chìa khóa ở góc trái dưới cùng màn hình) trước khi dịch.');
@@ -276,6 +278,11 @@ export class Translator {
         startPage,
         endPage
       );
+      
+      if (this.store.currentProjectId() !== startProjectId) {
+        console.warn('Dự án đã bị thay đổi trong quá trình dịch, hủy bỏ kết quả.');
+        return false;
+      }
       
       // Update store with any newly discovered images
       if (updatedImages && Object.keys(updatedImages).length > 0) {
