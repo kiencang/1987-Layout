@@ -248,26 +248,6 @@ export class ProjectModal implements OnInit {
     this.confirmingDeleteId.set(null);
   }
 
-  async exportProjectToPdf(p: Project, event: Event) {
-    event.stopPropagation();
-    const fullProject = await this.db.getProject(p.id);
-    if (!fullProject) {
-      this.toast.error('Dữ liệu dự án bị lỗi, không thể xuất bản');
-      return;
-    }
-    this.store.exportProjectToPdf(fullProject);
-  }
-
-  async exportProjectToHtml(p: Project, event: Event) {
-    event.stopPropagation();
-    const fullProject = await this.db.getProject(p.id);
-    if (!fullProject) {
-      this.toast.error('Dữ liệu dự án bị lỗi, không thể xuất bản');
-      return;
-    }
-    this.store.exportProjectToHtml(fullProject);
-  }
-
   async exportProjectData(p: Project, event: Event) {
     event.stopPropagation();
     const fullProject = await this.db.getProject(p.id);

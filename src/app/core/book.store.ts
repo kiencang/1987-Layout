@@ -2,7 +2,6 @@ import { Injectable, signal, effect, PLATFORM_ID, inject, untracked, computed } 
 import { isPlatformBrowser } from '@angular/common';
 import { DbService, Project, ProjectMeta, SplitSettings } from './db';
 import { ToastService } from './toast.service';
-import { BookExporter } from './book/exporter';
 import { createNewContentVersion } from './book/version-util';
 
 import { Chapter, TranslationConfig, TranslationVersion, TranslationStyle } from './book/types';
@@ -13,7 +12,6 @@ export class BookStore {
   private platformId = inject(PLATFORM_ID);
   private db = inject(DbService);
   private toastService = inject(ToastService);
-  private exporter = inject(BookExporter);
   
   readonly currentProjectId = signal<string | null>(null);
   readonly currentProjectName = signal<string>('');
@@ -468,19 +466,5 @@ export class BookStore {
     this.images.set(undefined);
     this.pdfTask.set(undefined);
     this.chapters.set([]);
-  }
-
-  async exportProjectToPdf(project?: Project) {
-    const name = project ? project.name : this.currentProjectName();
-    const chaps = project ? project.chapters : this.chapters();
-    const images = project ? project.images : this.images();
-    await this.exporter.exportToPdf(name, chaps, images, project);
-  }
-
-  async exportProjectToHtml(project?: Project) {
-    const name = project ? project.name : this.currentProjectName();
-    const chaps = project ? project.chapters : this.chapters();
-    const images = project ? project.images : this.images();
-    await this.exporter.exportToHtml(name, chaps, images, project);
   }
 }

@@ -68,25 +68,6 @@ export async function generatePronounsRaw(
   }
 }
 
-export async function generatePronouns(
-  ai: GoogleGenAI,
-  loadPromptText: (url: string) => Promise<string | null>,
-  pdfBase64: string,
-  model: string,
-  bookTitle = '',
-  author = ''
-): Promise<string> {
-  const arr = await generatePronounsRaw(ai, loadPromptText, pdfBase64, model, bookTitle, author);
-  if (arr.length > 0) {
-    let md = '| Nhân vật (Original) | Giới tính | Ước lượng độ tuổi | Đặc điểm & Vai trò | Xưng hô / Tước vị (Dịch) | Ngôi thứ 3 (Narrator) | Xưng - Hô (Với người khác) | Lý do | Ghi chú |\n|---|---|---|---|---|---|---|---|---|\n';
-    for (const pt of arr) {
-      md += `| ${pt.originalName || ''} | ${pt.gender || ''} | ${pt.ageGroup || ''} | ${pt.role || ''} | ${pt.translatedTitles || ''} | ${pt.narratorPronoun || ''} | ${pt.dialoguePronouns || ''} | ${pt.reasoning || ''} | ${pt.notes || ''} |\n`;
-    }
-    return md;
-  }
-  return '';
-}
-
 export async function generateGlossaryRaw(
   ai: GoogleGenAI,
   loadPromptText: (url: string) => Promise<string | null>,
@@ -142,23 +123,4 @@ export async function generateGlossaryRaw(
     console.warn('Failed to parse generateGlossaryRaw JSON', e, result);
     throw new Error('Không thể đọc dữ liệu từ AI. Vui lòng thử lại sau vài giây.');
   }
-}
-
-export async function generateGlossary(
-  ai: GoogleGenAI,
-  loadPromptText: (url: string) => Promise<string | null>,
-  pdfBase64: string,
-  model: string,
-  bookTitle = '',
-  author = ''
-): Promise<string> {
-  const arr = await generateGlossaryRaw(ai, loadPromptText, pdfBase64, model, bookTitle, author);
-  if (arr.length > 0) {
-    let md = '| Tiếng Anh | Từ loại | Tiếng Việt | Ghi chú văn cảnh |\n|---|---|---|---|\n';
-    for (const pt of arr) {
-      md += `| ${pt.english || ''} | ${pt.pos || ''} | ${pt.vietnamese || ''} | ${pt.contextNotes || ''} |\n`;
-    }
-    return md;
-  }
-  return '';
 }
