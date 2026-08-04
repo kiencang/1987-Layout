@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, Output, EventEmitter } from '@angular/core';
 import { DbService, Project } from '../../core/db';
 import { BookStore } from '../../core/book.store';
 import { ToastService } from '../../core/toast.service';
@@ -12,9 +12,12 @@ import JSZip from 'jszip';
   template: `
     <div class="fixed inset-0 bg-zinc-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 cursor-pointer animate-fade-in" tabindex="0" (click)="triggerClose()" (keydown.escape)="triggerClose()" [class.animate-fade-out]="isClosing()">
       <div role="presentation" tabindex="-1" (keyup.enter)="$event.stopPropagation()" class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[80vh] flex flex-col overflow-hidden cursor-default animate-zoom-in" (click)="$event.stopPropagation()" [class.animate-zoom-out]="isClosing()">
-        <div class="px-6 py-4 border-b border-zinc-200 flex justify-between items-center bg-zinc-50/80">
+        <div class="px-6 py-4 border-b border-zinc-200 flex flex-wrap justify-between items-center gap-4 bg-zinc-50/80">
           <h2 class="text-xl font-bold text-zinc-900">Quản lý dự án</h2>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <button (click)="toggleSortMode()" class="text-sm px-3 py-1.5 bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-50 rounded-lg font-medium transition-colors flex items-center gap-1" [title]="sortMode() === 'date' ? 'Đang sắp xếp theo Mới nhất. Nhấn để chuyển sang A-Z' : 'Đang sắp xếp theo A-Z. Nhấn để chuyển sang Mới nhất'">
+              <span class="material-icons text-[18px]">sort</span> Sắp xếp: {{ sortMode() === 'date' ? 'Mới nhất' : 'A-Z' }}
+            </button>
             <button (click)="fileInput.click()" class="text-sm px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg font-medium transition-colors flex items-center gap-1">
               <span class="material-icons text-[18px]">file_upload</span> Nhập dự án
             </button>
@@ -143,7 +146,28 @@ export class ProjectModal implements OnInit {
   store = inject(BookStore);
   toast = inject(ToastService);
   
-  projects = signal<Project[]>([]);
+  rawProjects = signal<Project[]>([]);
+  sortMode = signal<'date' | 'alphabetical'>('date');
+  projects = computed(() => {
+    const list = [...this.rawProjects()];
+    if (this.sortMode() === 'date') {
+      list.sort((a, b) => (b.importedAt ?? b.createdAt) - (a.importedAt ?? a.createdAt));
+    } else {
+      list.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'vi'));
+    }
+    
+    const currentId = this.store.currentProjectId();
+    if (currentId) {
+      const currentIndex = list.findIndex(p => p.id === currentId);
+      if (currentIndex > -1) {
+        const currentProject = list.splice(currentIndex, 1)[0];
+        list.unshift(currentProject);
+      }
+    }
+    
+    return list;
+  });
+
   isLoading = signal(true);
   confirmingDeleteId = signal<string | null>(null);
   isClosing = signal(false);
@@ -178,6 +202,10 @@ export class ProjectModal implements OnInit {
     }, 200); // 200ms matches the animation duration
   }
 
+  toggleSortMode() {
+    this.sortMode.set(this.sortMode() === 'date' ? 'alphabetical' : 'date');
+  }
+
   ngOnInit() {
     this.loadProjects();
   }
@@ -185,9 +213,6 @@ export class ProjectModal implements OnInit {
   async loadProjects() {
     this.isLoading.set(true);
     const list = await this.db.getAllProjects();
-    // Sort by importedAt (if available) or createdAt descending
-    list.sort((a, b) => (b.importedAt ?? b.createdAt) - (a.importedAt ?? a.createdAt));
-
     // Auto-migrate metadata for old projects to populate totalChunks/translatedChunks
     for (const p of list) {
       if (p.phase >= 3 && (p.totalChunks === undefined || p.translatedChunks === undefined)) {
@@ -225,7 +250,7 @@ export class ProjectModal implements OnInit {
       }
     }
 
-    this.projects.set(list);
+    this.rawProjects.set(list);
     this.isLoading.set(false);
   }
 

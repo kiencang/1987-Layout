@@ -1,6 +1,6 @@
 import { Injectable, signal, effect, PLATFORM_ID, inject, untracked, computed } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { DbService, Project, ProjectMeta, SplitSettings } from './db';
+import { DbService, ProjectMeta, SplitSettings } from './db';
 import { ToastService } from './toast.service';
 import { createNewContentVersion } from './book/version-util';
 

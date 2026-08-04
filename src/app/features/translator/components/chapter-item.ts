@@ -173,17 +173,24 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                 <div class="flex items-center gap-2">
                   <span class="text-xs font-medium text-zinc-500 mr-2">Phiên bản:</span>
                   @for (v of chapter().versions; track v.versionNumber) {
-                    <button 
-                      (click)="store.selectVersion(chapter().id, v.versionNumber)"
-                      [class.bg-indigo-100]="chapter().activeVersionNumber === v.versionNumber"
-                      [class.text-indigo-700]="chapter().activeVersionNumber === v.versionNumber"
-                      [class.font-semibold]="chapter().activeVersionNumber === v.versionNumber"
-                      [class.bg-zinc-100]="chapter().activeVersionNumber !== v.versionNumber"
-                      [class.text-zinc-600]="chapter().activeVersionNumber !== v.versionNumber"
-                      class="px-2 py-1.5 min-w-[36px] rounded-md text-xs font-medium transition-colors hover:bg-zinc-200"
-                    >
-                      v{{ v.versionNumber }}
-                    </button>
+                    <div class="relative group">
+                      <button 
+                        (click)="store.selectVersion(chapter().id, v.versionNumber)"
+                        [class.bg-indigo-100]="chapter().activeVersionNumber === v.versionNumber"
+                        [class.text-indigo-700]="chapter().activeVersionNumber === v.versionNumber"
+                        [class.font-semibold]="chapter().activeVersionNumber === v.versionNumber"
+                        [class.bg-zinc-100]="chapter().activeVersionNumber !== v.versionNumber"
+                        [class.text-zinc-600]="chapter().activeVersionNumber !== v.versionNumber"
+                        class="px-2 py-1.5 min-w-[36px] rounded-md text-xs font-medium transition-colors hover:bg-zinc-200"
+                      >
+                        v{{ v.versionNumber }}
+                      </button>
+                      @if (v.versionNumber === 1) {
+                        <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 p-3 bg-zinc-800 text-white text-[13px] rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[60] pointer-events-none shadow-lg text-left font-normal leading-relaxed after:content-[''] after:absolute after:bottom-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-b-zinc-800">
+                          Đây là bản dịch đầu tiên (v1) của phần này, bạn có quyền tạo các bản dịch khác để tạo các phiên bản khác của bản dịch. Ví dụ bạn có thể điều chỉnh model dùng để dịch, chỉnh sửa bảng thuật ngữ rồi dịch lại phần này hoặc dịch lại toàn cuốn sách.
+                        </div>
+                      }
+                    </div>
                   }
                 </div>
                 @if (getActiveVersion(chapter()); as activeV) {
@@ -317,7 +324,7 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                     <span class="text-sm font-medium text-zinc-600">Đang tải và hiển thị trang PDF bản gốc...</span>
                   </div>
                 } @else if (pdfPageImages().length > 0) {
-                  <div class="w-full max-h-[700px] overflow-y-auto rounded-xl border border-zinc-200/80 bg-zinc-200/60 p-4 space-y-4 shadow-inner">
+                  <div class="w-full max-h-[700px] rounded-xl border border-zinc-200/80 bg-zinc-200/60 p-4 space-y-4 shadow-inner" [class.overflow-y-auto]="!isAnyModalOpen()" [class.overflow-hidden]="isAnyModalOpen()">
                     @for (imgSrc of pdfPageImages(); track $index) {
                       <div class="relative bg-white rounded-lg shadow border border-zinc-200/80 overflow-hidden mx-auto max-w-3xl">
                         <div class="bg-zinc-100/90 px-3 py-1.5 text-[11px] font-medium text-zinc-500 border-b border-zinc-200 flex justify-between items-center">
@@ -328,7 +335,7 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                     }
                   </div>
                 } @else if (chapter().originalText) {
-                  <div class="max-h-[700px] overflow-y-auto pr-2">
+                  <div class="max-h-[700px] pr-2" [class.overflow-y-auto]="!isAnyModalOpen()" [class.overflow-hidden]="isAnyModalOpen()">
                     <app-safe-html [htmlContent]="renderedOriginalHtml()" class="w-full text-zinc-800" />
                   </div>
                 } @else {
@@ -343,7 +350,7 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                     <span class="text-sm">Đây là nội dung bản quyền / metadata, nội dung sẽ được giữ nguyên bản gốc khi xuất file.</span>
                   </div>
                 } @else if (chapter().translatedText) {
-                  <div class="max-h-[700px] overflow-y-auto pr-2">
+                  <div class="max-h-[700px] pr-2" [class.overflow-y-auto]="!isAnyModalOpen()" [class.overflow-hidden]="isAnyModalOpen()">
                     <app-safe-html [htmlContent]="renderedTranslatedHtml()" class="w-full text-zinc-900" />
                   </div>
                 } @else if (chapter().status === 'translating') {
@@ -366,6 +373,8 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
           </div>
         </div>
       }
+    </div>
+
       @if (isFullscreen()) {
         <div class="fixed inset-0 z-50 overflow-y-auto bg-white text-zinc-900">
           <div class="max-w-4xl mx-auto px-6 lg:px-12 py-12 relative min-h-screen">
@@ -474,7 +483,7 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
           </div>
         </div>
       }
-      
+
       @if (showGlossaryModal() || isClosingGlossaryModal()) {
         <div class="fixed inset-0 bg-zinc-900/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4 cursor-pointer animate-in fade-in duration-200" tabindex="0" (click)="triggerCloseGlossaryModal()" (keydown.escape)="triggerCloseGlossaryModal()" [class.animate-fade-out]="isClosingGlossaryModal()">
           <div role="presentation" tabindex="-1" (keyup.enter)="$event.stopPropagation()" class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[80vh] flex flex-col overflow-hidden cursor-default animate-in zoom-in duration-200" (click)="$event.stopPropagation()" [class.animate-zoom-out]="isClosingGlossaryModal()">
@@ -619,7 +628,6 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
           </div>
         </div>
       }
-    </div>
   `
 })
 export class ChapterItemComponent implements OnDestroy {
@@ -761,6 +769,14 @@ export class ChapterItemComponent implements OnDestroy {
   showCustomInstructionsModal = signal(false);
   isClosingCustomInstructionsModal = signal(false);
   parsedCustomInstructionsSnapshot = signal<SafeHtml | string>('');
+
+  isAnyModalOpen = computed(() => 
+    this.showGlossaryModal() || 
+    this.showSummaryModal() || 
+    this.showContextSummaryModal() || 
+    this.showCustomInstructionsModal() || 
+    this.showPronounModal()
+  );
 
   isGeneratingSummary = signal(false);
   showConfirmCreateSummary = signal(false);
