@@ -186,8 +186,8 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                         v{{ v.versionNumber }}
                       </button>
                       @if (v.versionNumber === 1) {
-                        <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 p-3 bg-zinc-800 text-white text-[13px] rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[60] pointer-events-none shadow-lg text-left font-normal leading-relaxed after:content-[''] after:absolute after:bottom-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-b-zinc-800">
-                          Đây là bản dịch đầu tiên (v1) của phần này, bạn có quyền tạo các bản dịch khác để tạo các phiên bản khác của bản dịch. Ví dụ bạn có thể điều chỉnh model dùng để dịch, chỉnh sửa bảng thuật ngữ rồi dịch lại phần này hoặc dịch lại toàn cuốn sách.
+                        <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-80 p-3 bg-zinc-800 text-white text-[13px] rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[60] pointer-events-none shadow-lg text-left font-normal leading-relaxed after:content-[''] after:absolute after:bottom-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-b-zinc-800">
+                          Đây là bản dịch đầu tiên (v1) của phần này, bạn có quyền tạo các bản dịch khác để tạo các phiên bản khác của bản dịch. Ví dụ bạn có thể điều chỉnh model dùng để dịch, chỉnh sửa bảng thuật ngữ rồi dịch lại phần này hoặc dịch lại toàn cuốn sách. Có tối đa 3 phiên bản dịch gần nhất của mỗi phần được lưu lại.
                         </div>
                       }
                     </div>
