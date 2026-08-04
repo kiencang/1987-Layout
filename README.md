@@ -7,7 +7,7 @@ Dịch file PDF dài từ tiếng Anh sang tiếng Việt. Có khả năng giữ
 
 Chất lượng của 2 bản trên như nhau, chỉ khác là bản trên AI Studio thì tận dụng được API Key miễn phí của Gemini.
 
-Lưu ý: Công cụ này cần các file PDF đầu vào là dạng "tiêu chuẩn" (đại khái là có thể dùng chuột copy được văn bản) thì nó mới tách ảnh trong bản gốc dễ dàng được. Nói cách khác, các file PDF scan nằm ngoài khả năng của công cụ này. Với file PDF scan, cách khả thi nhất là sử dụng các ứng dụng chuyển đổi định dạng mạnh như PaddleOCR (https://aistudio.baidu.com/paddleocr) để chuyển nó thành markdown (vẫn giữ được ảnh), rồi dùng công cụ silaBook (https://github.com/kiencang/silaBook/) để dịch.
+**Lưu ý**: Công cụ này cần các file PDF đầu vào là dạng "tiêu chuẩn" (đại khái là có thể dùng chuột copy được văn bản) thì nó mới tách ảnh trong bản gốc dễ dàng được. Nói cách khác, các file PDF scan nằm ngoài khả năng của công cụ này. Với file PDF scan, cách khả thi nhất là sử dụng các ứng dụng chuyển đổi định dạng mạnh như PaddleOCR (https://aistudio.baidu.com/paddleocr) để chuyển nó thành markdown (vẫn giữ được ảnh), rồi dùng công cụ silaBook (https://github.com/kiencang/silaBook/) để dịch.
 
 ---
 
@@ -19,7 +19,7 @@ Nó cố gắng tận dụng 2 ưu điểm các các dự án trước là khả
 
 Lưu ý là, mặc dù có nhiều điểm tương đồng, 1987-Layout và silaBook không thay thế nhau hoàn toàn và không có cái nào `tốt hơn hẳn`. Bạn dùng công cụ nào sẽ tùy trường hợp cụ thể và mục đích. 
 
-Nếu mục đích của bạn là dịch các cuốn sách khoa học dài và bạn muốn bảo toàn định dạng tốt nhất có thể, đặc biệt là công thức toán học, thế thì 1987-Layout sẽ là lựa chọn thích hợp nhất.
+Nếu mục đích của bạn là dịch các cuốn sách PDF khoa học dài và bạn muốn bảo toàn định dạng tốt nhất có thể, đặc biệt là công thức toán học, thế thì 1987-Layout sẽ là lựa chọn thích hợp nhất. Trường hợp bạn đã có sẵn sách là định dạng EPUB, dùng silaBook để dịch lại là lựa chọn phù hợp hơn.
 
 ## Hướng dẫn sử dụng
 Về cơ bản ứng dụng 1987-Layout cũng có cách sử dụng khá tương đồng với silaBook. 
@@ -42,11 +42,11 @@ Công cụ này có thể được sử dụng cho mục đích nghiên cứu v�
 *   **[Angular](https://angular.dev/)**: Khung ứng dụng web đơn trang (SPA).
 
 ### 2. Giao Diện
-*   **[Tailwind CSS](https://tailwindcss.com/)**: Framework utility-first CSS hỗ trợ xây dựng giao diện.
+*   **[Tailwind CSS](https://tailwindcss.com/)**: Framework CSS hỗ trợ xây dựng giao diện.
 *   **[Angular Material Icons](https://material.angular.io/)**: Cung cấp hệ thống icon.
 
 ### 3. Xử Lý Tài Liệu
-*   **[Mozilla PDF.js](https://mozilla.github.io/pdf.js/)** – Phát triển bởi **Mozilla**. Thư viện chạy hoàn toàn trên Client-side, giúp trích xuất hình ảnh trong file PDF.
+*   **[Mozilla PDF.js](https://mozilla.github.io/pdf.js/)** – Phát triển bởi Mozilla. Thư viện chạy hoàn toàn trên Client-side, giúp trích xuất hình ảnh trong file PDF.
 *   **[pdf-lib](https://pdf-lib.js.org/)**: Dùng để chia tách PDF thành các chunk (đoạn) để dễ xử lý hơn.
 *   **[Marked & marked-footnote](https://marked.js.org/)**: Chuyển Markdown sang cấu trúc HTML, có hỗ trợ ghi chú chân trang (footnotes).
 *   **[Turndown](https://github.com/mixmark-io/turndown)**: Chuyển đổi ngược các định dạng HTML thành cú pháp Markdown.
