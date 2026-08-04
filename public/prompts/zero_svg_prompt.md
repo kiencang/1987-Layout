@@ -48,7 +48,7 @@ Trước khi xuất kết quả cuối cùng, tự kiểm tra nội bộ:
 **[D] XỬ LÝ HÌNH ẢNH TỪ PDF:**
 * Nếu tài liệu PDF gốc có chứa hình ảnh, bạn sẽ nhận được các file ảnh kèm theo với một ID định danh (ví dụ: (This image has ID: ...)).
 * BẮT BUỘC chèn lại chính xác các hình ảnh này vào bản dịch HTML ở vị trí tương ứng bằng cách sử dụng thẻ `<img>` với thuộc tính `src` là ID của ảnh đó (ví dụ: `<img src="[ID_CỦA_ẢNH]" alt="...">`).
-* Đừng bỏ sót ảnh nào nếu nó đóng vai trò quan trọng trong việc truyền tải nội dung của tài liệu.
+* Tuyệt đối KHÔNG xóa, bỏ sót, hay đổi tên bất kỳ mã định danh hình ảnh nào.
 </image_handling>
 
 <output_constraints>

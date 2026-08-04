@@ -148,11 +148,9 @@ Dưới đây là danh sách các hình ảnh được trích xuất từ tài l
 Mỗi hình ảnh sẽ được đính kèm dưới dạng phần tử đa phương tiện trong payload của bạn kèm theo thông báo định danh "Original image with ID: mã_id_của_ảnh".
 
 BẠN BẮT BUỘC PHẢI TUÂN THỦ CÁC NGUYÊN TẮC SAU KHI XỬ LÝ HÌNH ẢNH:
-1. ĐỐI CHIẾU VỊ TRÍ CHÍNH XÁC: Quan sát trực quan tệp PDF gốc và các hình ảnh được đính kèm để xác định chính xác vị trí ngữ cảnh của từng ảnh trong mạch văn bản.
-2. CHÈN THẺ HTML ĐÚNG CHUẨN: Chèn thẻ hình ảnh HTML theo định dạng mẫu:
-   <img src="mã_id_của_ảnh" alt="Mô tả chi tiết nội dung hình ảnh bằng tiếng Việt">
-   tại đúng vị trí ngữ cảnh phù hợp nhất trong bản dịch tiếng Việt của bạn.
-3. THUỘC TÍNH ALT CÓ Ý NGHĨA: Không sử dụng các đoạn mô tả chung chung hay sáo rỗng cho 'alt'. Hãy viết mô tả cụ thể về những gì đang diễn ra trong ảnh (ví dụ: mô tả sơ đồ, biểu đồ, hình vẽ minh họa, công thức toán học có trong ảnh) để hỗ trợ khả năng tiếp cận và giúp người đọc hiểu rõ hơn bối cảnh.
+1. ĐỐI CHIẾU VỊ TRÍ VÀ CHÚ THÍCH CHÍNH XÁC (QUAN TRỌNG NHẤT): Quan sát trực tiếp tệp PDF gốc để xác định đúng vị trí của từng ảnh. ĐẶC BIỆT LƯU Ý: Phải đọc kỹ và đối chiếu chính xác đoạn text chú thích (caption) nằm ngay dưới hoặc trên ảnh trong tài liệu gốc. TUYỆT ĐỐI KHÔNG được râu ông nọ cắm cằm bà kia (lấy chú thích của ảnh này gắn cho ảnh khác).
+2. SỬ DỤNG THẺ FIGURE & FIGCAPTION: Bọc hình ảnh và chú thích ảnh bằng bộ thẻ <figure> và <figcaption> theo chuẩn HTML5. Đặt chú thích ảnh đã được dịch thuật chính xác vào thẻ <figcaption>.
+3. THUỘC TÍNH ALT CƠ BẢN: Chỉ cần thêm mô tả ngắn gọn về ảnh vào thuộc tính alt (không cần quá chi tiết) để không làm loãng luồng xử lý chính.
 4. KHỚP MÃ ID TUYỆT ĐỐI: Mã ID trong thuộc tính 'src' của thẻ <img> phải khớp CHÍNH XÁC từng ký tự với mã ID được cung cấp ở trên (ví dụ: [${imageIds}]).
 5. KHÔNG TỰ TIỆN THÊM/BỚT: Tuyệt đối KHÔNG tự sáng tạo, phỏng đoán hay tự bịa ra bất kỳ mã ID nào khác không có trong danh sách trên. Không bỏ sót bất kỳ hình ảnh nào nếu nó thuộc trang nội dung đang được dịch.
 </available_images_and_ids>\n`;

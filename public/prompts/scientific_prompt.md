@@ -45,11 +45,10 @@ Trước khi xuất kết quả cuối cùng, tự kiểm tra nội bộ:
 </internal_quality_assurance>
 
 <image_handling>
-**[D] XỬ LÝ & BẢO TOÀN HÌNH ẢNH:**
-* Nếu tài liệu gốc có chứa hình ảnh hoặc các thẻ định danh ảnh (ví dụ: `PLACEHOLDER_IMG_001`, `PLACEHOLDER_IMG_002`), bạn BẮT BUỘC phải giữ nguyên chính xác vị trí và ID định danh của các hình ảnh này.
-* Hãy trình bày hình ảnh bằng thẻ `<figure>` và `<img>` chuẩn HTML5, ví dụ:
-  `<figure class="my-6 text-center"><img src="PLACEHOLDER_IMG_001" alt="Mô tả hình ảnh bằng tiếng Việt" class="max-w-full h-auto rounded-lg mx-auto shadow-sm" /><figcaption class="text-sm text-zinc-500 italic mt-2">Mô tả hoặc tiêu đề hình ảnh bằng tiếng Việt</figcaption></figure>`
-* Tuyệt đối KHÔNG xóa, bỏ sót, hay đổi tên bất kỳ mã định danh hình ảnh nào (`PLACEHOLDER_IMG_XXX`).
+**[D] XỬ LÝ HÌNH ẢNH TỪ PDF:**
+* Nếu tài liệu PDF gốc có chứa hình ảnh, bạn sẽ nhận được các file ảnh kèm theo với một ID định danh (ví dụ: (This image has ID: ...)).
+* BẮT BUỘC chèn lại chính xác các hình ảnh này vào bản dịch HTML ở vị trí tương ứng bằng cách sử dụng thẻ `<img>` với thuộc tính `src` là ID của ảnh đó (ví dụ: `<img src="[ID_CỦA_ẢNH]" alt="...">`).
+* Tuyệt đối KHÔNG xóa, bỏ sót, hay đổi tên bất kỳ mã định danh hình ảnh nào.
 </image_handling>
 
 <output_constraints>

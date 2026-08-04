@@ -175,7 +175,9 @@ Bạn là **Chuyên gia AI Song ngữ (Anh-Việt) và Tái tạo Tài liệu K�
                 padding: 20px; 
                 overflow-wrap: break-word; /* Chống tràn text dài (như URL) */
             }
-            img, svg, video { max-width: 100%; height: auto; object-fit: contain; display: block; margin: 1.5rem auto; }
+            img, svg, video { max-width: 100%; height: auto; object-fit: contain; display: block; margin: 1.5rem auto; border-radius: 8px; }
+            figure { margin: 2rem auto; text-align: center; }
+            figcaption { font-size: 0.9em; color: #555; font-style: italic; margin-top: 0.5rem; }
 
             /* Bảo vệ Bảng */
             .table-wrapper { width: 100%; overflow-x: auto; margin-bottom: 1.5rem; -webkit-overflow-scrolling: touch; }
