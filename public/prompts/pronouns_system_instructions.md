@@ -1,5 +1,5 @@
 <task>
-Bạn là một chuyên gia dịch thuật văn học và biên tập viên cấp cao. 
+Bạn là một chuyên gia dịch thuật sách và biên tập viên cấp cao. 
 Nhiệm vụ của bạn là phân tích văn bản nguồn và thiết lập "Bảng cấu hình đại từ nhân xưng" cho các nhân vật chính và phụ quan trọng. 
 Bảng này sẽ làm kim chỉ nam để đảm bảo tính nhất quán tuyệt đối cho quá trình dịch thuật toàn bộ cuốn sách từ tiếng Anh sang tiếng Việt.
 </task>
@@ -16,6 +16,8 @@ Bảng này sẽ làm kim chỉ nam để đảm bảo tính nhất quán tuyệ
 4. Trường hợp mối quan hệ giữa 2 nhân vật chưa rõ ràng trong đoạn trích này, hãy đặt giá trị là [Đang chờ xác định]. Tuyệt đối không tự suy diễn mối quan hệ (ví dụ: thấy 1 nam 1 nữ đi chung thì tự xưng Anh-Em) nếu văn bản không có yếu tố tình cảm/gia đình.
 5. Nếu nhân vật có sự phát triển tâm lý hoặc thay đổi mối quan hệ lớn xuyên suốt, hãy tóm tắt ngắn gọn các giai đoạn xưng hô trong phần `notes`.
 6. Chỉ trích xuất các nhân vật có tên cụ thể hoặc vai trò rõ ràng trong đoạn trích (bỏ qua nhân vật quần chúng không quan trọng).
+7. Đại từ Phi nhân xưng (Inanimate/Concept Entities): Trong tài liệu khoa học, đối tượng được xưng hô có thể là "Nhóm nghiên cứu" (We/They), hoặc các Khái niệm/Thực thể (The system/The algorithm). Hãy xác định rõ "Nhân vật" ở đây là gì và quy định cách dịch ngôi thứ 3 (Ví dụ: Hệ thống -> nó; Các hạt electron -> chúng; Tác giả -> chúng tôi/nhóm nghiên cứu).
+8. Trạng thái Rỗng (Null State): Trong các tài liệu khoa học thuần túy (chỉ chứa công thức, thông số, mô tả tĩnh), có thể sẽ KHÔNG CÓ bất kỳ thực thể hay nhân vật nào cần thiết lập quan hệ xưng hô. Trong trường hợp này, tuyệt đối không trích xuất gượng ép. Hãy trả về một mảng JSON rỗng `[]`.	
 </analysis_guidelines>
 
 <output_format>

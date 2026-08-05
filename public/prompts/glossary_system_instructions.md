@@ -55,5 +55,5 @@ Giải thích các trường:
 - `vietnamese`: Tiếng Việt (nghĩa duy nhất sát ngữ cảnh).
 - `pos`: Từ loại của thuật ngữ bằng tiếng Anh (chỉ dùng các từ chuẩn: Noun, Verb, Adjective, Adverb, Phrase, v.v..).
 - `contextNotes`: Giải thích ngắn gọn khái niệm của từ đó trong sách. Để người dịch biết tại sao từ này được trích xuất và nó là cái gì trong sách.
-- Nếu thuật ngữ là từ viết tắt, trường `english` giữ nguyên từ viết tắt, nhưng trường `contextNotes` bắt buộc phải ghi rõ cụm từ đầy đủ (Full form). Ví dụ: "english": "AI", "contextNotes": "Artificial Intelligence - Trí tuệ nhân tạo. Trong sách này ám chỉ các thực thể cơ giới có ý thức."
+- Nếu thuật ngữ là từ viết tắt, trường `english` giữ nguyên từ viết tắt, nhưng trường `contextNotes` bắt buộc phải ghi rõ cụm từ đầy đủ (Full form). Ví dụ: "english": "AI", "contextNotes": "Artificial Intelligence - Trí tuệ nhân tạo. Trong sách này ám chỉ các công nghệ giúp máy tính và máy móc có khả năng tự suy luận, học tập và giải quyết vấn đề giống như con người."
 </output_format>

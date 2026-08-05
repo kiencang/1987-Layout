@@ -1,4 +1,4 @@
-Hãy phân tích đoạn văn bản nguồn dưới đây và lập Bảng đại từ nhân xưng chuẩn xác nhất.
+Hãy phân tích file bạn được cung cấp và lập Bảng đại từ nhân xưng chuẩn xác nhất.
 
 <metadata>
 - Tên sách: {{tên sách}}
