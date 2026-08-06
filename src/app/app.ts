@@ -14,15 +14,16 @@ import {ApiKeyModal} from './shared/components/api-key-modal';
 import {RemixModalComponent} from './shared/components/remix-modal.component';
 import {FooterComponent} from './shared/components/footer.component';
 import {AppsModalComponent} from './shared/components/apps-modal.component';
+import {SearchTranslatorComponent} from './shared/components/search-translator.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-root',
-  imports: [Uploader, Splitter, PronounSetup, GlossarySetup, Translator, Home, ProjectModal, EditProjectModal, ToastComponent, MatIconModule, ApiKeyModal, RemixModalComponent, FooterComponent, AppsModalComponent],
+  imports: [Uploader, Splitter, PronounSetup, GlossarySetup, Translator, Home, ProjectModal, EditProjectModal, ToastComponent, MatIconModule, ApiKeyModal, RemixModalComponent, FooterComponent, AppsModalComponent, SearchTranslatorComponent],
   template: `
     <div class="h-screen bg-zinc-50 flex flex-col font-sans overflow-hidden">
-      <header class="bg-white border-b border-zinc-200 shrink-0 w-full py-4 px-6 flex items-center justify-between shadow-sm">
-        <div class="flex items-center">
+      <header class="bg-white border-b border-zinc-200 shrink-0 w-full py-4 px-6 flex items-center justify-between shadow-sm relative">
+        <div class="flex items-center z-10">
           <button class="flex items-center space-x-2 bg-transparent border-none p-0 focus:outline-none" 
                [class.cursor-pointer]="!store.isBusy()" 
                [class.cursor-default]="store.isBusy()"
@@ -48,8 +49,20 @@ import {AppsModalComponent} from './shared/components/apps-modal.component';
           }
         </div>
         
-        <div class="flex items-center justify-end space-x-6">
-          @if (store.phase() > 0) {
+        @if (store.phase() === 0) {
+          <div class="absolute inset-x-0 top-0 bottom-0 pointer-events-none flex items-center justify-center hidden md:flex z-10">
+             <div class="pointer-events-auto w-full max-w-2xl px-4 flex justify-center">
+               <app-search-translator class="w-full"></app-search-translator>
+             </div>
+          </div>
+        }
+
+        <div class="flex items-center justify-end space-x-6 z-10">
+          @if (store.phase() === 0) {
+            <div class="md:hidden block w-full max-w-xs ml-4">
+              <app-search-translator class="w-full"></app-search-translator>
+            </div>
+          } @else {
             <div class="hidden lg:flex items-center text-sm font-medium text-zinc-400 mr-2 border-r border-zinc-200 pr-6">
               <div class="flex items-center space-x-3">
                 <button (click)="goToPhase(1)" [disabled]="store.phase() > 1 || store.isBusy()" class="flex items-center hover:text-indigo-600 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-zinc-400" [class.text-indigo-600]="store.phase() >= 1">
