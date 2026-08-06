@@ -7,7 +7,7 @@ Dịch file PDF dài từ tiếng Anh sang tiếng Việt. Có khả năng giữ
 
 Chất lượng của 2 bản trên như nhau, chỉ khác là bản trên AI Studio thì tận dụng được API Key miễn phí của Gemini.
 
-Ngoài ra, chương trình sử dụng SI/Prompt đã được tối ưu sẵn ở dự án này: https://github.com/kiencang/SI-Prompt-1987-Layout
+Ngoài ra, chương trình sử dụng SI/Prompt đã được tối ưu sẵn ở dự án này: https://github.com/kiencang/SI-Prompt-1987-Layout-Translate
 
 <p align="center">
   <img src="images/buoc-5.png" alt="Dịch thành công">
