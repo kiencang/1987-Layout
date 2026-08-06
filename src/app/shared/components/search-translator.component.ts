@@ -85,6 +85,14 @@ export class SearchTranslatorComponent {
     const query = this.searchQuery().trim();
     if (!query) return;
 
+    if (typeof window !== 'undefined') {
+      const apiKey = localStorage.getItem('user_gemini_api_key');
+      if (!apiKey || apiKey.trim() === '') {
+        this.toast.error('Bạn cần nhập API Key để dịch, nó là button nằm bên trái ở chân trang.');
+        return;
+      }
+    }
+
     this.isTranslating.set(true);
     this.showDropdown.set(false);
     
@@ -108,6 +116,10 @@ export class SearchTranslatorComponent {
   }
 
   onDropdownClick() {
-    this.showDropdown.set(false);
+    // We use a small timeout to ensure the link click is processed
+    // before the DOM element containing the link is removed.
+    setTimeout(() => {
+      this.clearSearch();
+    }, 50);
   }
 }
