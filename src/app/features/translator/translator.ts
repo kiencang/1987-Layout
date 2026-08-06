@@ -262,7 +262,7 @@ export class Translator {
         }
       }
 
-      const { text: translatedText, customGlossary, glossaryStatus, glossaryRatio, images: updatedImages } = await this.gemini.translateChapter(
+const { text: translatedText, customGlossary, glossaryStatus, glossaryRatio, images: updatedImages } = await this.gemini.translateChapter(
         chapter.originalPdfBase64 || '', 
         config.model, 
         this.store.bookTitle(),
@@ -276,7 +276,8 @@ export class Translator {
         this.store.images(),
         config.translationStyle || 'general_science',
         startPage,
-        endPage
+        endPage,
+        startProjectId || ""
       );
       
       if (this.store.currentProjectId() !== startProjectId) {

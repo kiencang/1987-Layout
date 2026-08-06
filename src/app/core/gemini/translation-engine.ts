@@ -21,7 +21,8 @@ export async function translateChapter(
   images?: Record<string, string>,
   translationStyle: TranslationStyle = 'general_science',
   startPageNum?: number,
-  endPageNum?: number
+  endPageNum?: number,
+  projectId = ''
 ): Promise<{
   text: string;
   customGlossary?: string;
@@ -40,7 +41,7 @@ export async function translateChapter(
         array[i] = raw.charCodeAt(i);
       }
       // Merge extracted images into activeImages using the improved utility that respects existing IDs & page numbers
-      const extracted = await extractImagesFromPdf(array.buffer, 1024, 0.95, activeImages, startPageNum || 1);
+      const extracted = await extractImagesFromPdf(array.buffer, projectId, 1024, 0.95, activeImages, startPageNum || 1);
       if (Object.keys(extracted).length > 0) {
         activeImages = extracted;
       }

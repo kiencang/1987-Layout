@@ -217,11 +217,15 @@ export class BookStore {
     this.rawMarkdown.set(null);
     this.rawPdf.set(undefined);
     this.pdfPageCount.set(undefined);
+    this.images.set(undefined);
     this.pdfTask.set(undefined);
     this.chapters.set([]);
     this.splitSettings.set(undefined);
     this.customInstructions.set(undefined);
     this.phase.set(1);
+    if (isPlatformBrowser(this.platformId)) {
+      window.__SILA_IMAGES__ = undefined;
+    }
   }
 
   async loadProject(id: string) {
@@ -286,6 +290,7 @@ export class BookStore {
     this.pdfTask.set(undefined);
     this.pronounTask.set(undefined);
     this.glossaryTask.set(undefined);
+    this.images.set(undefined);
     this.splitSettings.set(undefined);
     this.customInstructions.set(undefined);
     this.phase.set(0);

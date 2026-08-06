@@ -18,7 +18,8 @@ export class BookSplitter {
     startPage: number,
     endPage: number,
     chunkSize: number,
-    totalPdfPages: number
+    totalPdfPages: number,
+    projectId: string
   ): Promise<{ chapters: Chapter[]; images: Record<string, string> }> {
     // Safely copy rawPdf bytes into a fresh ArrayBuffer
     const originalArrayBuffer = new ArrayBuffer(rawPdf.byteLength);
@@ -46,7 +47,7 @@ export class BookSplitter {
     let extractedImages: Record<string, string> = {};
     try {
       const imageBuffer = pdfDataToSave.buffer.slice(pdfDataToSave.byteOffset, pdfDataToSave.byteOffset + pdfDataToSave.byteLength);
-      extractedImages = await extractImagesFromPdf(imageBuffer, 1024, 0.95, {}, startPage);
+      extractedImages = await extractImagesFromPdf(imageBuffer, projectId, 1024, 0.95, {}, startPage);
     } catch (imgErr) {
       console.warn('Không thể trích xuất hình ảnh từ PDF:', imgErr);
     }

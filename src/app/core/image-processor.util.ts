@@ -76,16 +76,18 @@ export function resizeCanvasImage(
 /**
  * Extract images from PDF ArrayBuffer using pdfjs-dist.
  * Compresses images at 95% quality and maximum 1024px width/height.
- * Uses page-based image IDs: PAGE_X_IMG_Y (e.g., PAGE_5_IMG_2)
+ * Uses page-based image IDs: PROJ_projectId_PAGE_X_IMG_Y
  */
 export async function extractImagesFromPdf(
   arrayBuffer: ArrayBuffer,
+  projectId: string,
   maxDim = 1024,
   quality = 0.95,
   existingMap: Record<string, string> = {},
   startPageNum = 1
 ): Promise<Record<string, string>> {
   const imagesMap: Record<string, string> = { ...existingMap };
+
   try {
     const data = new Uint8Array(arrayBuffer.slice(0));
     const loadingTask = pdfjsLib.getDocument({ data });
@@ -101,16 +103,17 @@ export async function extractImagesFromPdf(
       const canvas = document.createElement('canvas');
       canvas.width = viewport.width;
       canvas.height = viewport.height;
+
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
       if (!ctx) continue;
 
       const originalDrawImage = ctx.drawImage;
       const originalPutImageData = ctx.putImageData;
-
       let pageImgCount = 0;
+
       // Calculate max existing image count for currentRealPage
       Object.keys(imagesMap).forEach(k => {
-        const match = k.match(new RegExp(`^PAGE_${currentRealPage}_IMG_(\\d+)$`, 'i'));
+        const match = k.match(new RegExp(`^PROJ_${projectId}_PAGE_${currentRealPage}_IMG_(\\d+)$`, 'i'));
         if (match) {
           const val = parseInt(match[1], 10);
           if (val > pageImgCount) pageImgCount = val;
@@ -137,9 +140,8 @@ export async function extractImagesFromPdf(
         }
 
         const dataUrl = resizeCanvasImage(tempCanvas, maxDim, quality);
-
         pageImgCount++;
-        const imgId = `PAGE_${currentRealPage}_IMG_${pageImgCount}`;
+        const imgId = `PROJ_${projectId}_PAGE_${currentRealPage}_IMG_${pageImgCount}`;
         imagesMap[imgId] = dataUrl;
         console.log(`[ImageProcessor] Đã trích xuất ảnh mới: ${imgId} (${width}x${height}px)`);
       };
@@ -211,11 +213,64 @@ export function restoreImagePlaceholders(
   for (const [id, dataUri] of Object.entries(imageMap)) {
     if (!id || !dataUri) continue;
 
-    // 1. Match ID with file extension like PAGE_5_IMG_2.png or PLACEHOLDER_IMG_001.png
-    const extRegex = new RegExp(`${id}\\.(png|jpg|jpeg|webp|gif|svg)`, 'gi');
+    const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // 1. Exact match with extension (e.g. PROJ_123_PAGE_5_IMG_1.png)
+    const extRegex = new RegExp(`${escapedId}\\.(png|jpg|jpeg|webp|gif|svg)`, 'gi');
     restored = restored.replace(extRegex, dataUri);
 
-    // 2. Match unpadded PLACEHOLDER_IMG variants (e.g., PLACEHOLDER_IMG_1 for PLACEHOLDER_IMG_001)
+    // 2. Exact match without extension (e.g. PROJ_123_PAGE_5_IMG_1)
+    if (restored.includes(id)) {
+      restored = restored.replaceAll(id, dataUri);
+    }
+
+    // 3. Match variations of PROJ_prefix_PAGE_X_IMG_Y or PAGE_X_IMG_Y
+    const pageMatch = id.match(/^(PROJ_[^_]+_)?PAGE_(\d+)_IMG_(\d+)$/i);
+    if (pageMatch) {
+      const projPrefix = pageMatch[1] || '';
+      const pNum = parseInt(pageMatch[2], 10);
+      const iNum = parseInt(pageMatch[3], 10);
+      const paddedPage = String(pNum).padStart(2, '0');
+      const paddedImg = String(iNum).padStart(2, '0');
+
+      // Variations that preserve the project prefix
+      const prefixedVariations = [
+        `${projPrefix}PAGE_${pNum}_IMG_${paddedImg}`,
+        `${projPrefix}PAGE_${paddedPage}_IMG_${iNum}`,
+        `${projPrefix}PAGE_${paddedPage}_IMG_${paddedImg}`
+      ];
+
+      for (const varId of prefixedVariations) {
+        if (varId !== id && restored.includes(varId)) {
+          const varEsc = varId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const varExtRegex = new RegExp(`${varEsc}\\.(png|jpg|jpeg|webp|gif|svg)`, 'gi');
+          restored = restored.replace(varExtRegex, dataUri);
+          restored = restored.replaceAll(varId, dataUri);
+        }
+      }
+
+      // Fallback variations WITHOUT project prefix (only if AI omitted the PROJ_ prefix)
+      // Use negative lookbehind so we NEVER match inside a full PROJ_xxx_ string!
+      if (projPrefix) {
+        const unprefixedVariations = [
+          `PAGE_${pNum}_IMG_${iNum}`,
+          `PAGE_${pNum}_IMG_${paddedImg}`,
+          `PAGE_${paddedPage}_IMG_${iNum}`,
+          `PAGE_${paddedPage}_IMG_${paddedImg}`
+        ];
+
+        for (const varId of unprefixedVariations) {
+          const varEsc = varId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const varExtRegex = new RegExp(`(?<!PROJ_[a-zA-Z0-9]+_)${varEsc}\\.(png|jpg|jpeg|webp|gif|svg)`, 'gi');
+          restored = restored.replace(varExtRegex, dataUri);
+
+          const varRegex = new RegExp(`(?<!PROJ_[a-zA-Z0-9]+_)${varEsc}`, 'gi');
+          restored = restored.replace(varRegex, dataUri);
+        }
+      }
+    }
+
+    // 4. Match unpadded PLACEHOLDER_IMG variants (e.g., PLACEHOLDER_IMG_1 for PLACEHOLDER_IMG_001)
     const numMatch = id.match(/PLACEHOLDER_IMG_(\d+)/i);
     if (numMatch) {
       const numInt = parseInt(numMatch[1], 10);
@@ -225,32 +280,6 @@ export function restoreImagePlaceholders(
         restored = restored.replace(unpaddedExtRegex, dataUri);
         restored = restored.replaceAll(unpaddedId, dataUri);
       }
-    }
-
-    // 3. Match PAGE_X_IMG_Y variants (e.g., PAGE_05_IMG_02 for PAGE_5_IMG_2)
-    const pageMatch = id.match(/PAGE_(\d+)_IMG_(\d+)/i);
-    if (pageMatch) {
-      const pNum = parseInt(pageMatch[1], 10);
-      const iNum = parseInt(pageMatch[2], 10);
-      const paddedPage = String(pNum).padStart(2, '0');
-      const paddedImg = String(iNum).padStart(2, '0');
-      const variations = [
-        `PAGE_${pNum}_IMG_${paddedImg}`,
-        `PAGE_${paddedPage}_IMG_${iNum}`,
-        `PAGE_${paddedPage}_IMG_${paddedImg}`
-      ];
-      for (const varId of variations) {
-        if (varId !== id) {
-          const varExtRegex = new RegExp(`${varId}\\.(png|jpg|jpeg|webp|gif|svg)`, 'gi');
-          restored = restored.replace(varExtRegex, dataUri);
-          restored = restored.replaceAll(varId, dataUri);
-        }
-      }
-    }
-
-    // 4. Replace exact ID match
-    if (restored.includes(id)) {
-      restored = restored.replaceAll(id, dataUri);
     }
   }
 

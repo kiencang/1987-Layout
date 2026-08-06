@@ -73,7 +73,7 @@ export class GeminiClient {
     return normalizePronouns(this.ai, this.loadPromptText.bind(this), pdfBase64, rawPronounTable, model, bookTitle, author);
   }
 
-  async translateChapter(
+async translateChapter(
     pdfBase64: string, 
     model: string, 
     bookTitle = '', 
@@ -87,7 +87,8 @@ export class GeminiClient {
     images?: Record<string, string>,
     translationStyle: TranslationStyle = 'general_science',
     startPageNum?: number,
-    endPageNum?: number
+    endPageNum?: number,
+    projectId = ''
   ): Promise<{text: string, customGlossary?: string, glossaryStatus?: 'none' | 'full' | 'filtered', glossaryRatio?: number, images?: Record<string, string>}> {
     return translateChapter(
       this.ai,
@@ -105,7 +106,8 @@ export class GeminiClient {
       images,
       translationStyle,
       startPageNum,
-      endPageNum
+      endPageNum,
+      projectId
     );
   }
 

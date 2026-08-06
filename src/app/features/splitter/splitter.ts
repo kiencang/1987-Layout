@@ -355,12 +355,20 @@ export class Splitter {
         return;
       }
 
+      const projectId = this.store.currentProjectId();
+      if (!projectId) {
+        this.toast.error('Không tìm thấy dự án hiện tại.');
+        this.isProcessing.set(false);
+        return;
+      }
+
       const { chapters, images } = await this.splitter.splitPdf(
         rawPdf,
         start,
         end,
         chunkSize,
-        totalPdfPages
+        totalPdfPages,
+        projectId
       );
 
       if (Object.keys(images).length > 0) {
