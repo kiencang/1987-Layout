@@ -137,16 +137,12 @@ QUY TẮC BẮT BUỘC TUÂN THỦ:
     const prompt = `Provide the single best English search query translation for the following Vietnamese query. Output ONLY the raw English text, nothing else: ${query}`;
     
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const configArgs: any = {
-        systemInstruction: systemInstruction,
-        thinkingConfig: { thinkingLevel: 'HIGH' }
-      };
-
       const response = await this.ai.models.generateContent({
         model: 'gemini-flash-lite-latest',
         contents: prompt,
-        config: configArgs
+        config: {
+          systemInstruction: systemInstruction,
+        }
       });
       return response.text?.trim() || '';
     } catch (e) {
