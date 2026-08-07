@@ -146,7 +146,7 @@ export async function translateChapter(
       const imageIds = Object.keys(imagesToAttach).join(', ');
       const imageGuide = `\n\n<available_images_and_ids>
 Dưới đây là danh sách các hình ảnh được trích xuất từ tài liệu gốc tương ứng với phần nội dung này, cùng mã ID tương ứng: [${imageIds}].
-Mỗi hình ảnh sẽ được đính kèm dưới dạng phần tử đa phương tiện trong payload của bạn kèm theo thông báo định danh "Original image with ID: mã_id_của_ảnh".
+Mỗi hình ảnh sẽ được đính kèm dưới dạng phần tử đa phương tiện trong payload của bạn kèm theo thông báo định danh "This image has ID: mã_id_của_ảnh".
 
 BẠN BẮT BUỘC PHẢI TUÂN THỦ CÁC NGUYÊN TẮC SAU KHI XỬ LÝ HÌNH ẢNH:
 1. ĐỐI CHIẾU VỊ TRÍ VÀ CHÚ THÍCH CHÍNH XÁC (QUAN TRỌNG NHẤT): Quan sát trực tiếp tệp PDF gốc để xác định đúng vị trí của từng ảnh. ĐẶC BIỆT LƯU Ý: Phải đọc kỹ và đối chiếu chính xác đoạn text chú thích (caption) nằm ngay dưới hoặc trên ảnh trong tài liệu gốc. TUYỆT ĐỐI KHÔNG được râu ông nọ cắm cằm bà kia (lấy chú thích của ảnh này gắn cho ảnh khác).
@@ -196,7 +196,7 @@ BẠN BẮT BUỘC PHẢI TUÂN THỦ CÁC NGUYÊN TẮC SAU KHI XỬ LÝ HÌNH 
       const base64Data = dataUrl.replace(/^data:[^;]+;base64,/, '');
       
       contentsPayload.push({
-        text: `Original image with ID: ${id}`
+        text: `This image has ID: ${id}`
       });
       contentsPayload.push({
         inlineData: {

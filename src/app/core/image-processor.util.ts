@@ -124,8 +124,8 @@ export async function extractImagesFromPdf(
         const width = source.width;
         const height = source.height;
 
-        // Filter out small images (< 100px width or height)
-        if (width < 100 || height < 100) return;
+        // Filter out small images (< 70px width or height)
+        if (width < 70 || height < 70) return;
 
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = width;
