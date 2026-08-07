@@ -36,6 +36,14 @@ Về cơ bản ứng dụng 1987-Layout cũng có cách sử dụng khá tương
 - **Bước 4**: Nhận diện Thuật ngữ/Từ khó. Một mục quan trọng đối với thể loại sách khoa học, và chắc chắn bạn cần triển khai;
 - **Bước 5**: Dịch, mặc định công cụ sử dụng model Pro để dịch. Model này mạnh hơn Flash về khả năng xử lý chính xác, do vậy quan trọng để đảm bảo kết quả dịch tốt hơn, do đầu vào là PDF tương đối phức tạp (đầu vào của silaBook là dạng markdown, đơn giản hơn và có thể dùng Flash vẫn có chất lượng tượng đối tốt). Ngoài ra ở bước này bạn có thể chọn `Phong cách dịch`, có 3 phong cách cơ bản, mặc định là `Khoa học nói chung`, nó phù hợp với hầu hết các tài liệu khoa học có công thức toán. Với tài liệu nào có dạng toán học phức tạp, gồm cả sơ đồ, biểu đồ toán nên chọn phong cách dịch `Toán chuyên ngành`, còn tài liệu nào đơn thuần là dạng báo cáo, không sử dụng công thức toán phức tạp trong trình bày hãy sử dụng phong cách `Khoa học xã hội`;
 
+## Các giới hạn
+
+Công cụ này nhìn chung hoạt động tốt với các cấu trúc trình bày có độ phức tạp từ trung bình đến khá, nếu tài liệu gốc có độ phức tạp quá cao, mức độ tái tạo của nó cũng có những hạn chế nhất định.
+
+Một giới hạn mà tôi thấy tương đối rõ trong các lần kiểm thử là khả năng `nhìn các ảnh nhỏ rất gần nhau`. Gemini có vẻ chưa xử lý cái này tốt lắm, khi nó dễ nhận nhầm hoặc bỏ qua các ảnh nhỏ ở rất sát nhau.
+
+Với những cấu trúc phức tạp, việc quay trở về phương pháp dịch thông qua định dạng markdown lại là giải pháp khả thi, các công cụ mạnh để xử lý PDF như PaddleOCR hoặc MinerU sẽ giúp phân tích file PDF cực kỳ chính xác bao gồm phân biệt rõ các ảnh nhỏ. Tóm lại với file PDF quá phức tạp, ít nhất ở thời điểm hiện tại, bạn vẫn cần dùng markdown + silaBook (tiền thân của 1987-Layout) để dịch.
+
 ## Tuyên bố từ chối trách nhiệm
 Công cụ này có thể được sử dụng cho mục đích nghiên cứu và học tập cá nhân.
 
