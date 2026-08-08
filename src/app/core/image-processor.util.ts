@@ -39,7 +39,7 @@ export async function renderPdfToPageImages(
 
 /**
  * Resizes image canvas keeping aspect ratio if any dimension > maxDim (default 1024),
- * and encodes to JPEG Data URI with specified quality (default 0.95 / 95%).
+ * and encodes to PNG Data URI.
  */
 export function resizeCanvasImage(
   canvas: HTMLCanvasElement,
@@ -75,7 +75,7 @@ export function resizeCanvasImage(
 
 /**
  * Extract images from PDF ArrayBuffer using pdfjs-dist.
- * Compresses images at 95% quality and maximum 1024px width/height.
+ * Limits images to maximum 1024px width/height and compresses with JPEG quality.
  * Uses page-based image IDs: PROJ_projectId_PAGE_X_IMG_Y
  */
 export async function extractImagesFromPdf(

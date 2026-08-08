@@ -63,25 +63,28 @@ export class ToastService {
   /**
    * Hiển thị thông báo Thành công
    * @param message Nội dung thông báo
+   * @param duration Thời gian hiển thị (ms)
    */
-  success(message: string) {
-    this.show(message, 'success');
+  success(message: string, duration?: number) {
+    this.show(message, 'success', duration);
   }
 
   /**
    * Hiển thị thông báo Lỗi
    * @param message Nội dung thông báo
+   * @param duration Thời gian hiển thị (ms)
    */
-  error(message: string) {
-    this.show(message, 'error');
+  error(message: string, duration?: number) {
+    this.show(message, 'error', duration);
   }
 
   /**
    * Hiển thị thông báo Thông tin / Đang xử lý
    * @param message Nội dung thông báo
+   * @param duration Thời gian hiển thị (ms)
    */
-  info(message: string) {
-    this.show(message, 'info');
+  info(message: string, duration?: number) {
+    this.show(message, 'info', duration);
   }
 
   /**
@@ -94,19 +97,19 @@ export class ToastService {
     }
   }
 
-  private show(message: string, type: ToastType) {
+  private show(message: string, type: ToastType, duration: number = 7000) {
     this.currentToast.set({ message, type });
     
     if (this.timeoutId) {
       clearTimeout(this.timeoutId);
     }
     
-    // Đóng tự động sau 7 giây để người dùng kịp đọc các thông báo lỗi dài
+    // Đóng tự động sau duration
     this.timeoutId = setTimeout(() => {
       const current = this.currentToast();
       if (current && current.message === message) {
         this.currentToast.set(null);
       }
-    }, 7000);
+    }, duration);
   }
 }

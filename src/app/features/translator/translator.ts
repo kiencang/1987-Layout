@@ -24,7 +24,7 @@ import JSZip from 'jszip';
         <div class="p-4 bg-indigo-50/50 border border-indigo-100 rounded-xl flex gap-3 text-sm text-indigo-900 w-full">
           <mat-icon class="text-indigo-500 shrink-0">lightbulb</mat-icon>
           <div class="space-y-2">
-            <p>Xử lý PDF trực tiếp để dịch phức tạp hơn, đặc biệt nếu file có nhiều ảnh. Bạn nên sử dụng <strong>model Pro</strong> trong quá trình dịch để đạt kết quả tốt nhất có thể.</p>
+            <p>Dịch file PDF có nhiều ảnh tương đối phức tạp, bạn nên sử dụng <strong>model Pro</strong> trong quá trình dịch để đạt kết quả tốt nhất có thể. Nếu dùng model Flash, chỉ dùng nó trên các nội dung không quá khó. Ngoài ra dù lựa chọn của bạn là gì, luôn đọc song song bản dịch với bản gốc để tiện đối chiếu, dễ phát hiện các sai sót.</p>
             <p>Nếu hết ngưỡng miễn phí sớm, bạn có thể xuất dự án (ở mục "Quản lý dự án") và nhập lại dự án vào tài khoản miễn phí khác để tiếp tục tận dụng ngưỡng miễn phí trong ngày (thay vì phải dùng API Key trả phí tốn kém).</p>
             <p>Nếu bạn đã tạo bảng "Thuật ngữ - Từ khó" hoặc/và bảng "Đại từ nhân xưng", nhớ tích hợp chúng vào trong quá trình dịch bằng cách tick tùy chọn "Kích hoạt..."</p>
           </div>

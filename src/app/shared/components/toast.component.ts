@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, MatIconModule],
   template: `
     @if (toastService.currentToast(); as toast) {
-      <div class="fixed bottom-6 right-6 px-4 py-3 rounded-xl shadow-lg border text-sm font-medium flex items-center z-50 transition-all shadow-red-100 min-w-[300px] max-w-md"
+      <div class="fixed bottom-6 right-6 px-4 py-3 rounded-xl shadow-lg border text-sm font-medium flex items-center z-50 transition-all shadow-red-100 min-w-[300px] max-w-lg"
            [class.bg-red-50]="toast.type === 'error'"
            [class.text-red-700]="toast.type === 'error'"
            [class.border-red-200]="toast.type === 'error'"

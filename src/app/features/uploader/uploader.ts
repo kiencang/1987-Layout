@@ -160,7 +160,7 @@ export class Uploader {
          }
          
          this.store.setPdf(pristinePdfData, file.name, count);
-         this.toast.success('Đã tải PDF thành công. Vui lòng thiết lập chia chương.');
+         this.toast.success('Đã tải PDF thành công. Vui lòng thiết lập chia chương.', 4900);
        } catch (e) {
          console.error('Failed to parse PDF', e);
          this.toast.error('Lỗi đọc PDF');
