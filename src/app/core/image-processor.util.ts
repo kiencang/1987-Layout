@@ -93,22 +93,19 @@ export async function extractImagesFromPdf(
     const loadingTask = pdfjsLib.getDocument({ data });
     const pdfDoc = await loadingTask.promise;
 
-    console.log(`[ImageProcessor] Bắt đầu trích xuất hình ảnh từ PDF (${pdfDoc.numPages} trang, trang bắt đầu: ${startPageNum})...`);
+    console.log(`[ImageProcessor] Bắt đầu trích xuất hình ảnh từ PDF bằng getOperatorList (${pdfDoc.numPages} trang, trang bắt đầu: ${startPageNum})...`);
 
     for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
       const currentRealPage = startPageNum + pageNum - 1;
       const page = await pdfDoc.getPage(pageNum);
-      const viewport = page.getViewport({ scale: 1.0 });
+      
+      const operatorList = await page.getOperatorList();
+      const validObjectTypes = [
+        pdfjsLib.OPS.paintImageXObject,
+        pdfjsLib.OPS.paintInlineImageXObject,
+        pdfjsLib.OPS.paintImageXObjectRepeat
+      ];
 
-      const canvas = document.createElement('canvas');
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-
-      const ctx = canvas.getContext('2d', { willReadFrequently: true });
-      if (!ctx) continue;
-
-      const originalDrawImage = ctx.drawImage;
-      const originalPutImageData = ctx.putImageData;
       let pageImgCount = 0;
 
       // Calculate max existing image count for currentRealPage
@@ -120,72 +117,94 @@ export async function extractImagesFromPdf(
         }
       });
 
-      const processAndSaveSource = (source: HTMLImageElement | HTMLCanvasElement | ImageBitmap | ImageData) => {
-        const width = source.width;
-        const height = source.height;
+      for (let i = 0; i < operatorList.fnArray.length; i++) {
+        const fn = operatorList.fnArray[i];
 
-        // Filter out small images (< 70px width or height)
-        if (width < 70 || height < 70) return;
+        if (validObjectTypes.includes(fn)) {
+          const imgName = operatorList.argsArray[i][0];
+          
+          try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let imgData: any;
+            
+            if (page.objs && typeof page.objs.get === 'function') {
+              imgData = await new Promise((resolve) => {
+                page.objs.get(imgName, (obj: unknown) => resolve(obj));
+              });
+            } else if (page.commonObjs && typeof page.commonObjs.get === 'function') {
+              imgData = await new Promise((resolve) => {
+                page.commonObjs.get(imgName, (obj: unknown) => resolve(obj));
+              });
+            }
 
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = width;
-        tempCanvas.height = height;
-        const tempCtx = tempCanvas.getContext('2d');
-        if (!tempCtx) return;
+            if (!imgData) continue;
 
-        if (source instanceof ImageData) {
-          tempCtx.putImageData(source, 0, 0);
-        } else {
-          tempCtx.drawImage(source, 0, 0);
-        }
+            const width = imgData.width;
+            const height = imgData.height;
 
-        const dataUrl = resizeCanvasImage(tempCanvas, maxDim, quality);
-        pageImgCount++;
-        const imgId = `PROJ_${projectId}_PAGE_${currentRealPage}_IMG_${pageImgCount}`;
-        imagesMap[imgId] = dataUrl;
-        console.log(`[ImageProcessor] Đã trích xuất ảnh mới: ${imgId} (${width}x${height}px)`);
-      };
+            if (!width || !height) continue;
+            
+            // Filter out small images (< 70px width or height)
+            if (width < 70 || height < 70) continue;
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ctx.drawImage = function (...args: any[]) {
-        const imgSource = args[0];
-        try {
-          if (
-            imgSource instanceof HTMLImageElement ||
-            imgSource instanceof HTMLCanvasElement ||
-            imgSource instanceof ImageBitmap
-          ) {
-            processAndSaveSource(imgSource);
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+
+            if (!ctx) continue;
+
+            if (imgData.data) {
+              const imgImageData = ctx.createImageData(width, height);
+              const srcData = imgData.data;
+              const destData = imgImageData.data;
+
+              if (srcData.length === width * height * 3) {
+                let j = 0;
+                for (let i = 0; i < srcData.length; i += 3) {
+                  destData[j] = srcData[i];
+                  destData[j + 1] = srcData[i + 1];
+                  destData[j + 2] = srcData[i + 2];
+                  destData[j + 3] = 255;
+                  j += 4;
+                }
+              } else if (srcData.length === width * height * 4) {
+                destData.set(srcData);
+              } else if (srcData.length === width * height) {
+                let j = 0;
+                for (let i = 0; i < srcData.length; i++) {
+                  const val = srcData[i];
+                  destData[j] = val;
+                  destData[j + 1] = val;
+                  destData[j + 2] = val;
+                  destData[j + 3] = 255;
+                  j += 4;
+                }
+              } else {
+                try {
+                  destData.set(srcData.subarray(0, destData.length));
+                } catch {
+                  continue;
+                }
+              }
+
+              ctx.putImageData(imgImageData, 0, 0);
+            } else if (imgData.bitmap) {
+              ctx.drawImage(imgData.bitmap, 0, 0);
+            } else {
+              continue; // Unknown format
+            }
+
+            const dataUrl = resizeCanvasImage(canvas, maxDim, quality);
+            pageImgCount++;
+            const imgId = `PROJ_${projectId}_PAGE_${currentRealPage}_IMG_${pageImgCount}`;
+            imagesMap[imgId] = dataUrl;
+            console.log(`[ImageProcessor] Đã trích xuất ảnh mới: ${imgId} (${width}x${height}px)`);
+
+          } catch (err) {
+            console.warn(`[ImageProcessor] Lỗi khi trích xuất ảnh ${imgName} trang ${currentRealPage}:`, err);
           }
-        } catch {
-          // ignore error in monkey patch
         }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return (originalDrawImage as any).apply(this, args);
-      };
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ctx.putImageData = function (...args: any[]) {
-        const imgData = args[0];
-        try {
-          if (imgData instanceof ImageData) {
-            processAndSaveSource(imgData);
-          }
-        } catch {
-          // ignore error in monkey patch
-        }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return (originalPutImageData as any).apply(this, args);
-      };
-
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await page.render({ canvasContext: ctx, viewport } as any).promise;
-      } catch (err) {
-        console.warn(`[ImageProcessor] Lỗi khi render trang ${pageNum} để trích xuất ảnh:`, err);
-      } finally {
-        ctx.drawImage = originalDrawImage;
-        ctx.putImageData = originalPutImageData;
       }
     }
 
