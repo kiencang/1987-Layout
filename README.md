@@ -40,9 +40,7 @@ Về cơ bản ứng dụng 1987-Layout cũng có cách sử dụng khá tương
 
 Công cụ này nhìn chung hoạt động tốt với các cấu trúc trình bày có độ phức tạp từ trung bình đến khá, nếu tài liệu gốc có độ phức tạp quá cao, mức độ tái tạo của nó cũng có những hạn chế nhất định.
 
-Một giới hạn mà tôi thấy tương đối rõ trong các lần kiểm thử là khả năng `nhìn các ảnh nhỏ rất gần nhau`. Gemini có vẻ chưa xử lý cái này tốt lắm, khi nó dễ nhận nhầm hoặc bỏ qua các ảnh nhỏ ở rất sát nhau.
-
-Với những cấu trúc phức tạp, việc quay trở về phương pháp dịch thông qua định dạng markdown lại là giải pháp khả thi, các công cụ mạnh để xử lý PDF như PaddleOCR hoặc MinerU sẽ giúp phân tích file PDF cực kỳ chính xác bao gồm phân biệt rõ các ảnh nhỏ. Tóm lại với file PDF quá phức tạp, ít nhất ở thời điểm hiện tại, bạn vẫn cần dùng markdown + silaBook (tiền thân của 1987-Layout) để dịch.
+Với những cấu trúc phức tạp, việc quay trở về phương pháp dịch thông qua định dạng markdown lại là giải pháp khả thi, các công cụ mạnh để xử lý PDF như PaddleOCR hoặc MinerU sẽ giúp phân tích file PDF cực kỳ chính xác bao gồm phân biệt rõ các ảnh & vị trí chính xác của nó. Tóm lại với file PDF quá phức tạp, ít nhất ở thời điểm hiện tại, bạn vẫn nên dùng markdown + silaBook (tiền thân của 1987-Layout) để dịch.
 
 ## Tuyên bố từ chối trách nhiệm
 Công cụ này có thể được sử dụng cho mục đích nghiên cứu và học tập cá nhân.
