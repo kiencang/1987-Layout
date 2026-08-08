@@ -95,11 +95,13 @@ export async function extractImagesFromPdf(
 
     console.log(`[ImageProcessor] Bắt đầu trích xuất hình ảnh từ PDF bằng getOperatorList (${pdfDoc.numPages} trang, trang bắt đầu: ${startPageNum})...`);
 
-    for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+    const processPage = async (pageNum: number) => {
       const currentRealPage = startPageNum + pageNum - 1;
-      const page = await pdfDoc.getPage(pageNum);
-      
-      const operatorList = await page.getOperatorList();
+      console.log(`[ImageProcessor] Đang xử lý trang ${currentRealPage}...`);
+      try {
+        const page = await pdfDoc.getPage(pageNum);
+        
+        const operatorList = await page.getOperatorList();
       const validObjectTypes = [
         pdfjsLib.OPS.paintImageXObject,
         pdfjsLib.OPS.paintInlineImageXObject,
@@ -127,14 +129,41 @@ export async function extractImagesFromPdf(
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let imgData: any;
             
+            // Fetch image data with a timeout to prevent hanging on corrupted or missing objects
+            const fetchObjectWithTimeout = (targetObjs: any, name: string, timeoutMs: number = 5000): Promise<any> => {
+              return new Promise((resolve) => {
+                let isResolved = false;
+                const timeoutId = setTimeout(() => {
+                  if (!isResolved) {
+                    console.warn(`[ImageProcessor] Timeout khi lấy object ${name}`);
+                    isResolved = true;
+                    resolve(null);
+                  }
+                }, timeoutMs);
+
+                try {
+                  targetObjs.get(name, (obj: unknown) => {
+                    if (!isResolved) {
+                      clearTimeout(timeoutId);
+                      isResolved = true;
+                      resolve(obj);
+                    }
+                  });
+                } catch (err) {
+                  if (!isResolved) {
+                    clearTimeout(timeoutId);
+                    isResolved = true;
+                    console.warn(`[ImageProcessor] Lỗi khi gọi get cho object ${name}:`, err);
+                    resolve(null);
+                  }
+                }
+              });
+            };
+
             if (page.objs && typeof page.objs.get === 'function') {
-              imgData = await new Promise((resolve) => {
-                page.objs.get(imgName, (obj: unknown) => resolve(obj));
-              });
+              imgData = await fetchObjectWithTimeout(page.objs, imgName);
             } else if (page.commonObjs && typeof page.commonObjs.get === 'function') {
-              imgData = await new Promise((resolve) => {
-                page.commonObjs.get(imgName, (obj: unknown) => resolve(obj));
-              });
+              imgData = await fetchObjectWithTimeout(page.commonObjs, imgName);
             }
 
             if (!imgData) continue;
@@ -161,10 +190,10 @@ export async function extractImagesFromPdf(
 
               if (srcData.length === width * height * 3) {
                 let j = 0;
-                for (let i = 0; i < srcData.length; i += 3) {
-                  destData[j] = srcData[i];
-                  destData[j + 1] = srcData[i + 1];
-                  destData[j + 2] = srcData[i + 2];
+                for (let idx = 0; idx < srcData.length; idx += 3) {
+                  destData[j] = srcData[idx];
+                  destData[j + 1] = srcData[idx + 1];
+                  destData[j + 2] = srcData[idx + 2];
                   destData[j + 3] = 255;
                   j += 4;
                 }
@@ -172,8 +201,8 @@ export async function extractImagesFromPdf(
                 destData.set(srcData);
               } else if (srcData.length === width * height) {
                 let j = 0;
-                for (let i = 0; i < srcData.length; i++) {
-                  const val = srcData[i];
+                for (let idx = 0; idx < srcData.length; idx++) {
+                  const val = srcData[idx];
                   destData[j] = val;
                   destData[j + 1] = val;
                   destData[j + 2] = val;
@@ -206,6 +235,25 @@ export async function extractImagesFromPdf(
           }
         }
       }
+      
+      // Cleanup page to free memory
+      try {
+        page.cleanup();
+      } catch (e) {
+        // ignore
+      }
+      } catch (pageErr) {
+        console.warn(`[ImageProcessor] Lỗi khi xử lý trang ${currentRealPage}:`, pageErr);
+      }
+    };
+
+    const BATCH_SIZE = 10;
+    for (let i = 1; i <= pdfDoc.numPages; i += BATCH_SIZE) {
+      const batch = [];
+      for (let j = i; j < i + BATCH_SIZE && j <= pdfDoc.numPages; j++) {
+        batch.push(processPage(j));
+      }
+      await Promise.all(batch);
     }
 
     console.log(`[ImageProcessor] Hoàn tất trích xuất. Tổng số ảnh hiện tại: ${Object.keys(imagesMap).length}`, Object.keys(imagesMap));
