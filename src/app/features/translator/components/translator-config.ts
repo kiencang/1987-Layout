@@ -11,65 +11,6 @@ import { BookStore } from '../../../core/book.store';
     <div class="bg-white rounded-xl shadow-sm border border-zinc-200 p-6 mb-8 flex flex-col gap-8 relative">
       <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
 
-        <!-- Translation Style Selection -->
-        <div class="flex-1">
-          <h3 class="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-4">Phong cách dịch</h3>
-          <div class="flex flex-col space-y-3">
-            <label class="relative flex items-center space-x-3 transition-opacity group"
-                    [class.cursor-pointer]="!store.isTranslatingAny()"
-                    [class.cursor-not-allowed]="store.isTranslatingAny()"
-                    [class.opacity-50]="store.isTranslatingAny()">
-              <input type="radio" name="translationStyle" value="general_science" 
-                [disabled]="store.isTranslatingAny()"
-                [checked]="(store.config().translationStyle || 'general_science') === 'general_science'"
-                (change)="store.updateConfig({translationStyle: 'general_science'})"
-                class="w-4 h-4 text-indigo-600 border-zinc-300 focus:ring-indigo-500 disabled:cursor-not-allowed">
-              <span class="text-sm text-zinc-700 font-medium tracking-tight">
-                Khoa học nói chung
-              </span>
-              <div class="pointer-events-none absolute left-7 top-full mt-1 hidden group-hover:block z-30 w-72 p-2.5 bg-zinc-900 text-zinc-100 text-xs rounded-lg shadow-xl leading-relaxed border border-zinc-700/50">
-                Có công thức toán nhưng không gồm đồ thị toán phức tạp. <strong class="font-semibold text-amber-300">Đa phần các tài liệu khoa học nên chọn tùy chọn này.</strong>
-              </div>
-            </label>
-
-            <label class="relative flex items-center space-x-3 transition-opacity group"
-                    [class.cursor-pointer]="!store.isTranslatingAny()"
-                    [class.cursor-not-allowed]="store.isTranslatingAny()"
-                    [class.opacity-50]="store.isTranslatingAny()">
-              <input type="radio" name="translationStyle" value="social_science" 
-                [disabled]="store.isTranslatingAny()"
-                [checked]="store.config().translationStyle === 'social_science'"
-                (change)="store.updateConfig({translationStyle: 'social_science'})"
-                class="w-4 h-4 text-indigo-600 border-zinc-300 focus:ring-indigo-500 disabled:cursor-not-allowed">
-              <span class="text-sm text-zinc-700 font-medium tracking-tight">
-                Khoa học xã hội
-              </span>
-              <div class="pointer-events-none absolute left-7 top-full mt-1 hidden group-hover:block z-30 w-72 p-2.5 bg-zinc-900 text-zinc-100 text-xs rounded-lg shadow-xl leading-relaxed border border-zinc-700/50">
-                Chọn "Khoa học xã hội" khi tài liệu không bao gồm công thức toán và cũng không có đồ thị toán.
-              </div>
-            </label>
-
-            <label class="relative flex items-center space-x-3 transition-opacity group"
-                    [class.cursor-pointer]="!store.isTranslatingAny()"
-                    [class.cursor-not-allowed]="store.isTranslatingAny()"
-                    [class.opacity-50]="store.isTranslatingAny()">
-              <input type="radio" name="translationStyle" value="specialized_math" 
-                [disabled]="store.isTranslatingAny()"
-                [checked]="store.config().translationStyle === 'specialized_math'"
-                (change)="store.updateConfig({translationStyle: 'specialized_math'})"
-                class="w-4 h-4 text-indigo-600 border-zinc-300 focus:ring-indigo-500 disabled:cursor-not-allowed">
-              <span class="text-sm text-zinc-700 font-medium tracking-tight">
-                Toán chuyên ngành
-              </span>
-              <div class="pointer-events-none absolute left-7 top-full mt-1 hidden group-hover:block z-30 w-72 p-2.5 bg-zinc-900 text-zinc-100 text-xs rounded-lg shadow-xl leading-relaxed border border-zinc-700/50">
-                Chọn "Toán chuyên ngành" khi tài liệu có cả công thức toán và đồ thị toán.
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <div class="w-px bg-zinc-200 hidden lg:block"></div>
-
         <!-- Model Selection -->
         <div class="flex-1">
           <h3 class="text-sm font-semibold text-zinc-900 uppercase tracking-wider mb-4">Chọn mô hình AI</h3>

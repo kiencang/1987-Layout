@@ -93,16 +93,9 @@ export async function translateChapter(
     }
   }
   
-  let siFileName = "/prompts/zero_svg_system_instructions.md";
-  let promptFileName = "/prompts/zero_svg_prompt.md";
+  let siFileName = "/prompts/universal_system_instructions.md";
+  let promptFileName = "/prompts/universal_prompt.md";
   
-  if (translationStyle === 'social_science') {
-    siFileName = "/prompts/zero_math_system_instructions.md";
-    promptFileName = "/prompts/zero_math_prompt.md";
-  } else if (translationStyle === 'specialized_math') {
-    siFileName = "/prompts/scientific_system_instructions.md";
-    promptFileName = "/prompts/scientific_prompt.md";
-  }
   
   const systemInstruction = await loadPromptText(siFileName);
   let finalPrompt = await loadPromptText(promptFileName) || '';

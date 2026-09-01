@@ -203,7 +203,6 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                         <mat-icon class="!w-3.5 !h-3.5 !text-[14px] text-green-500">schedule</mat-icon> {{ activeV.timestamp | date:'dd/MM/yy HH:mm' }}
                       </span>
                       <span class="flex items-center gap-1.5">
-                        <mat-icon class="!w-3.5 !h-3.5 !text-[14px] text-violet-500">style</mat-icon> Phong cách: {{ getTranslationStyleLabel(activeV.translationStyle) }}
                       </span>
                     </div>
                     <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
@@ -1329,15 +1328,4 @@ ${processed}
     return chapter.versions.find(v => v.versionNumber === chapter.activeVersionNumber) || null;
   }
 
-  getTranslationStyleLabel(style?: string): string {
-    switch (style) {
-      case 'social_science':
-        return 'Khoa học xã hội';
-      case 'specialized_math':
-        return 'Toán chuyên ngành';
-      case 'general_science':
-      default:
-        return 'Khoa học nói chung';
-    }
-  }
 }
