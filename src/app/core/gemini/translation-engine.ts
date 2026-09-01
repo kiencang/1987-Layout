@@ -139,6 +139,13 @@ export async function translateChapter(
        finalPrompt = finalPrompt.replace('{{chỉ thị bổ sung}}', '');
     }
 
+    if (startPageNum !== undefined && endPageNum !== undefined && startPageNum > 0) {
+      const pageRangeBlock = `<page_range_context>\n**Phạm vi trang thực tế của phần nội dung này:** Từ trang ${startPageNum} đến trang ${endPageNum}.\n*LƯU Ý: BẮT BUỘC chèn thẻ \`<!-- PAGE_BREAK: X -->\` tại điểm bắt đầu mỗi trang với X tăng dần từ ${startPageNum} đến ${endPageNum} khớp chính xác với từng trang nội dung trong tài liệu gốc.*\n</page_range_context>`;
+      finalPrompt = finalPrompt.replace('{{phạm vi trang}}', pageRangeBlock);
+    } else {
+      finalPrompt = finalPrompt.replace('{{phạm vi trang}}', '');
+    }
+
     finalPrompt = finalPrompt.replace('{{nội dung cần dịch}}', '');
     
     // If there are project images for this chunk, append the guiding instruction block to finalPrompt

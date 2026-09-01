@@ -9,7 +9,8 @@ import {
   ViewChild,
   ChangeDetectorRef,
   AfterViewInit,
-  OnDestroy
+  OnDestroy,
+  output
 } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
@@ -44,6 +45,7 @@ import { SafeHtml } from '@angular/platform-browser';
 export class SafeHtmlComponent implements OnChanges, AfterViewInit, OnDestroy {
   @Input() htmlContent: SafeHtml | string = '';
   @Input() fontFamily = '';
+  readonly pageClick = output<number>();
 
   @ViewChild('iframeEl') iframeRef!: ElementRef<HTMLIFrameElement>;
 
@@ -72,16 +74,37 @@ export class SafeHtmlComponent implements OnChanges, AfterViewInit, OnDestroy {
     }
   }
 
+  scrollToPage(pageNumber: number): void {
+    try {
+      const iframe = this.iframeRef?.nativeElement;
+      if (iframe?.contentWindow) {
+        iframe.contentWindow.postMessage({ type: 'SILA_SCROLL_TO_PAGE', page: pageNumber }, '*');
+      }
+    } catch (e) {
+      console.warn('Could not postMessage to iframe:', e);
+    }
+  }
+
   private setupMessageListener(): void {
     if (typeof window === 'undefined') return;
 
     this.messageListener = (event: MessageEvent) => {
+      // Ensure the message came from this iframe instance if possible
+      const currentWin = this.iframeRef?.nativeElement?.contentWindow;
+      if (currentWin && event.source && event.source !== currentWin) {
+        return;
+      }
+
       if (event.data && event.data.type === 'SILA_IFRAME_RESIZE' && typeof event.data.height === 'number') {
         const newHeight = Math.max(event.data.height, 40) + 8;
         if (Math.abs(this.iframeHeight - newHeight) > 2) {
           this.iframeHeight = newHeight;
           this.cdr.markForCheck();
         }
+      }
+
+      if (event.data && event.data.type === 'SILA_PAGE_BREAK_CLICK' && typeof event.data.page === 'number') {
+        this.pageClick.emit(event.data.page);
       }
     };
     window.addEventListener('message', this.messageListener);
@@ -104,6 +127,19 @@ export class SafeHtmlComponent implements OnChanges, AfterViewInit, OnDestroy {
     if (!rawContent || !rawContent.trim()) {
       rawContent = '<p style="color: #a1a1aa; font-style: italic;">Không có nội dung</p>';
     }
+
+    // Transform page break comments into interactive visual button dividers
+    rawContent = rawContent.replace(/<!--\s*PAGE_BREAK:\s*(\d+)\s*-->/gi, (_match, pageNum) => {
+      return `<div class="page-break-divider" id="page-break-${pageNum}" data-page="${pageNum}">
+        <div class="page-break-line"></div>
+        <button type="button" class="page-sync-btn" data-page="${pageNum}" title="Nhấn để đồng bộ cuộn đến Trang ${pageNum} ở bản gốc">
+          <svg class="page-sync-icon-book" viewBox="0 0 24 24" width="11.5" height="11.5" fill="currentColor"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+          <span class="page-sync-text">Trang ${pageNum}</span>
+          <svg class="page-sync-icon-sync" viewBox="0 0 24 24" width="11" height="11" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+        </button>
+        <div class="page-break-line"></div>
+      </div>`;
+    });
 
     // Convert MathJax v2 script tags if present
     rawContent = rawContent.replace(/<script[^>]*type=["']math\/tex;?\s*mode=display["'][^>]*>([\s\S]*?)<\/script>/gi, '\\[$1\\]');
@@ -156,6 +192,74 @@ export class SafeHtmlComponent implements OnChanges, AfterViewInit, OnDestroy {
     pre code { background-color: transparent; padding: 0; color: inherit; }
     a { color: #2563eb; text-decoration: underline; }
     .footnote-highlight { background-color: #fef08a; transition: background-color 300ms ease-in-out; border-radius: 0.25rem; padding: 0 0.25rem; }
+
+    /* Page Break Divider & Sync Button */
+    .page-break-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 22px 0 16px 0;
+      padding: 2px 0;
+      user-select: none;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .page-break-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #cbd5e1 30%, #cbd5e1 70%, transparent);
+    }
+    .page-sync-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 2.5px 22px;
+      min-height: 22px;
+      line-height: 1.2;
+      background: #f8fafc;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: inherit;
+      outline: none;
+    }
+    .page-sync-btn:hover {
+      background: #4f46e5;
+      color: #ffffff;
+      border-color: #4338ca;
+      box-shadow: 0 3px 6px -1px rgba(79, 70, 229, 0.25);
+      transform: translateY(-0.5px);
+    }
+    .page-sync-btn:active {
+      transform: translateY(0);
+      background: #4338ca;
+    }
+    .page-sync-btn svg {
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+    .page-sync-btn:hover .page-sync-icon-sync {
+      transform: rotate(180deg);
+    }
+    .page-highlight-active {
+      background: #e0e7ff !important;
+      color: #3730a3 !important;
+      border-color: #6366f1 !important;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3) !important;
+      animation: pulse-badge 2s ease-in-out;
+    }
+    @keyframes pulse-badge {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.06); }
+      60% { transform: scale(0.98); }
+      100% { transform: scale(1); }
+    }
   </style>
   <script>
     window.MathJax = {
@@ -206,7 +310,32 @@ export class SafeHtmlComponent implements OnChanges, AfterViewInit, OnDestroy {
       new ResizeObserver(notifyParentResize).observe(document.body);
     }
 
+    window.addEventListener('message', function(ev) {
+      if (ev.data && ev.data.type === 'SILA_SCROLL_TO_PAGE' && typeof ev.data.page === 'number') {
+        var el = document.getElementById('page-break-' + ev.data.page);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          var b = el.querySelector('.page-sync-btn');
+          if (b) {
+            b.classList.add('page-highlight-active');
+            setTimeout(function() { b.classList.remove('page-highlight-active'); }, 2500);
+          }
+        }
+      }
+    });
+
     document.addEventListener('click', function(e) {
+      var btn = e.target.closest('.page-sync-btn');
+      if (btn) {
+        e.preventDefault();
+        var pageStr = btn.getAttribute('data-page');
+        var pageNum = parseInt(pageStr, 10);
+        if (!isNaN(pageNum) && window.parent) {
+          window.parent.postMessage({ type: 'SILA_PAGE_BREAK_CLICK', page: pageNum }, '*');
+        }
+        return;
+      }
+
       var anchor = e.target.closest('a');
       if (anchor) {
         var href = anchor.getAttribute('href');

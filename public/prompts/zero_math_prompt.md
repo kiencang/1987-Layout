@@ -13,6 +13,7 @@ Dựa trên vai trò và toàn bộ quy tắc đã được nạp trong **System
 {{thuật ngữ}}
 {{tóm tắt bối cảnh}}
 {{chỉ thị bổ sung}}
+{{phạm vi trang}}
 </context_info>
 
 <strict_compliance_recall>
@@ -20,18 +21,20 @@ Dựa trên vai trò và toàn bộ quy tắc đã được nạp trong **System
 Hãy gọi lại và áp dụng tuyệt đối **"Hệ thống Thứ tự Ưu tiên (1-4)"** và **"Quy tắc Giải quyết Xung đột"** trong SI:
 *   **[#1 & #1A]** Ý nghĩa chính xác 100% & Chuẩn hóa thuật ngữ học thuật.
 *   **[#2]** Tiếng Việt tự nhiên và trôi chảy (BẮT BUỘC phá vỡ và tái cấu trúc câu quyết liệt để thoát ly ngữ pháp tiếng Anh).
-*   **[#3]** HTML hiển thị hoàn hảo, không vỡ layout, font chữ nội dung chính đủ lớn để đọc.
-*   **[#4]** Bảo toàn định dạng gốc ở mức nỗ lực tối đa (Best-effort).
+*   **[#3]** Bảo toàn cấu trúc thị giác, phân trang đối chiếu 1:1 (`<!-- PAGE_BREAK: X -->`), đa cột liền mạch (CSS Multi-Columns), bảng biểu và hộp định lý.
+*   **[#4]** Tính ổn định, chống tràn ngang và khả năng đọc tối ưu của mã HTML.
 </strict_compliance_recall>
 
 <technical_checklist>
 **[B] CHECKLIST KỸ THUẬT QUAN TRỌNG:**
-*   **Cột & Layout:** Ép luồng văn bản chính về **1 CỘT DUY NHẤT**.
+*   **Đánh dấu phân trang 1:1:** BẮT BUỘC chèn thẻ `<!-- PAGE_BREAK: X -->` tại đầu mỗi trang đúng theo số trang thực tế trong tài liệu gốc. Không dời câu chữ qua lại giữa các trang.
+*   **Cột & Layout:** Nếu bản gốc 2 hoặc 3 cột, BẮT BUỘC dùng container CSS Multi-Columns `<div style="columns: 2; column-gap: 28px; ...">` để văn bản chảy liền mạch. Không ép cứng về 1 cột nếu bản gốc là đa cột.
 *   **Bảng biểu:** BẮT BUỘC bọc mọi `<table>` bằng `<div class="table-wrapper">` (áp dụng CSS cơ sở trong SI) để chống tràn ngang.
+*   **Công thức Toán học:** Phải dùng cú pháp LaTeX `\(\)` và `\[\]`. BẮT BUỘC nhúng thẻ `<script>` MathJax vào `<head>`. (Giữ nguyên dấu chấm `.` thập phân bên trong block LaTeX).
+*   **TUYỆT ĐỐI KHÔNG** bọc các cú pháp LaTeX (cả `\( \)` và `\[ \]`) bên trong các thẻ HTML như `<code>` hay `<pre>`.
 *   **Tài liệu tham khảo (References):** KHÔNG DỊCH các thành phần nhận diện (Tác giả, Tên sách/báo, Tạp chí, DOI, URL...). Giữ nguyên định dạng gốc.
-*   **Hình ảnh:** Thẻ `<img>` phải có `alt` text tiếng Việt có ý nghĩa.
-*   **Xử lý "câu gãy" do PDF (Line breaks):** Tự động nhận diện và ghép nối (merge) các câu bị ngắt dòng vật lý do giới hạn trang PDF thành một câu hoàn chỉnh trong thẻ `<p>`.
-*   **Header/Footer PDF:** Tự động nhận diện và loại bỏ/gom nhóm các Header/Footer bị chèn ngang làm đứt gãy đoạn văn gốc, đảm bảo tính liên tục của đoạn văn bản.
+*   **Hình ảnh:** Thẻ `<img>` phải có `src` khớp chính xác ID, bọc trong `<figure>` và `<figcaption>` dịch chuẩn xác.
+*   **Xử lý "câu gãy" do PDF (Line breaks):** Tự động nhận diện và ghép nối các câu bị ngắt dòng vật lý trong cùng đoạn thành câu trôi chảy. Nếu câu vắt dòng qua trang mới, tiếp tục viết tự nhiên sau thẻ `<!-- PAGE_BREAK: X -->`.
 *   **Tối ưu thiết kế cho màn hình lớn**: Bản dịch cuối cùng có khả năng đọc được trên nhiều kích cỡ màn hình khác nhau, nhưng kích cỡ màn hình lớn (trên laptop/desktop) vẫn là ưu tiên cao nhất.
 </technical_checklist>
 

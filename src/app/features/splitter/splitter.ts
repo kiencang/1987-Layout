@@ -47,7 +47,7 @@ import { BookSplitter } from '../../core/book/splitter';
           </h3>
           <p class="text-sm text-zinc-500 mb-4">Chọn khoảng trang cần dịch (Tổng số trang tài liệu gốc: <strong>{{ store.pdfPageCount() || 0 }}</strong> trang). Nếu bạn không có nhu cầu giảm số lượng trang, hãy cứ <strong>giữ nguyên toàn bộ cuốn sách</strong>. Ứng dụng không giới hạn số lượng trang, nhưng dung lượng cả file không quá 200MB và tổng token đầu vào không quá 1.5 triệu token. Hai giá trị này thường đủ cho các cuốn sách cả ngàn trang.</p>
 
-          <div class="flex items-center gap-3 max-w-md mb-6">
+          <div class="flex items-center gap-3 max-w-md mb-2">
             <div class="flex-1 flex items-center bg-white border border-zinc-200 rounded-lg px-3 py-2 shadow-sm focus-within:border-indigo-500 transition-colors">
               <span class="text-sm text-zinc-500 w-8">Từ</span>
               <input type="number" min="1" [max]="pdfEndPage() || store.pdfPageCount() || 1" [(ngModel)]="pdfStartPage" class="w-full text-center outline-none bg-transparent font-medium text-zinc-800">
@@ -58,6 +58,9 @@ import { BookSplitter } from '../../core/book/splitter';
               <input type="number" [min]="pdfStartPage()" [max]="store.pdfPageCount() || 1" [(ngModel)]="pdfEndPage" class="w-full text-center outline-none bg-transparent font-medium text-zinc-800">
             </div>
           </div>
+          <p class="text-xs text-zinc-500 mb-6">
+            Dự kiến chia thành: <strong class="text-zinc-800">{{ expectedChunks() }}</strong> phần (cố định 10 trang/phần)
+          </p>
 
           <!-- Ước tính token đầu vào -->
           <div class="pt-4 border-t border-zinc-200/80">
@@ -111,25 +114,6 @@ import { BookSplitter } from '../../core/book/splitter';
         </div>
       }
 
-      <div class="bg-white rounded-xl shadow-sm border border-zinc-200 p-6 mb-8 transition-opacity duration-300" [class.opacity-50]="store.hasAnyTranslation() || isProcessing()" [class.pointer-events-none]="store.hasAnyTranslation() || isProcessing()">
-        <h3 class="text-lg font-semibold text-zinc-900 mb-2">Cài đặt chia sách</h3>
-        
-        <div class="w-full">
-          <p class="text-sm text-zinc-500 mb-4">Ứng dụng sẽ <strong>chia cuốn sách thành nhiều phần nhỏ</strong>, mỗi phần sẽ có số lượng trang như bạn chọn bên dưới, mặc định 20 trang thường ổn, tuy nhiên bạn có thể điều chỉnh tăng giảm nếu muốn. Các cuốn sách nhiều ảnh hoặc/và có cấu trúc phức tạp, giá trị này để thấp hơn đôi chút có thể sẽ tốt hơn.</p>
-          <label for="pagesPerChunkInput" class="block text-sm font-medium text-zinc-700 mb-2">Số trang mỗi phần (chunk):</label>
-          <div class="flex items-center gap-3 max-w-xs">
-            <div class="flex-1 flex items-center bg-white border border-zinc-200 rounded-lg px-3 py-2 shadow-sm focus-within:border-indigo-500 transition-colors">
-              <input id="pagesPerChunkInput" type="number" min="10" max="25" [(ngModel)]="pagesPerChunk" (blur)="normalizePagesPerChunk()" class="w-full outline-none bg-transparent font-medium text-zinc-800">
-            </div>
-            <span class="text-zinc-500 text-sm">trang</span>
-          </div>
-          <p class="text-xs text-zinc-500 mt-2 leading-relaxed">
-            Dự kiến sách được chia thành: <strong>{{ expectedChunks() }}</strong> phần<br>
-            <span class="text-zinc-400">Cho phép điều chỉnh ngưỡng chia từ 10 - 25 trang</span>
-          </p>
-        </div>
-      </div>
-
       <div class="flex justify-end pt-4 border-t border-zinc-200">
         @if (store.hasAnyTranslation()) {
           <button 
@@ -167,7 +151,7 @@ export class Splitter {
   gemini = inject(GeminiClient);
   splitter = inject(BookSplitter);
 
-  pagesPerChunk = signal(20);
+  readonly CHUNK_SIZE = 10;
   isProcessing = signal(false);
   pdfStartPage = signal<number>(1);
   pdfEndPage = signal<number>(0);
@@ -187,10 +171,6 @@ export class Splitter {
         }
         if (chs[chs.length - 1].endPage) {
           this.pdfEndPage.set(chs[chs.length - 1].endPage!);
-        }
-        const chunkPageCount = chs[0].originalPdfPages || (chs[0].endPage && chs[0].startPage ? chs[0].endPage - chs[0].startPage + 1 : 0);
-        if (chunkPageCount >= 10 && chunkPageCount <= 25) {
-          this.pagesPerChunk.set(chunkPageCount);
         }
       } else {
         const count = this.store.pdfPageCount();
@@ -276,23 +256,13 @@ export class Splitter {
     }
   }
 
-  normalizePagesPerChunk() {
-    const val = this.pagesPerChunk();
-    if (val === null || val === undefined || isNaN(val) || val < 10) {
-      this.pagesPerChunk.set(10);
-    } else if (val > 25) {
-      this.pagesPerChunk.set(25);
-    }
-  }
-
   expectedChunks = computed(() => {
     let totalPages = this.store.pdfPageCount() || 0;
     if (this.store.rawPdf() && this.pdfEndPage() > 0) {
       totalPages = Math.max(0, this.pdfEndPage() - this.pdfStartPage() + 1);
     }
-    const size = Math.max(10, Math.min(25, this.pagesPerChunk() || 20));
     if (totalPages <= 0) return 0;
-    return Math.ceil(totalPages / size);
+    return Math.ceil(totalPages / this.CHUNK_SIZE);
   });
 
   async applySplit() {
@@ -300,8 +270,6 @@ export class Splitter {
       this.store.phase.set(3);
       return;
     }
-
-    this.normalizePagesPerChunk();
 
     let rawPdf = this.store.rawPdf();
     
@@ -336,12 +304,6 @@ export class Splitter {
       return;
     }
 
-    const chunkSize = this.pagesPerChunk();
-    if (chunkSize < 1) {
-      this.toast.error('Số trang mỗi phần phải lớn hơn 0.');
-      return;
-    }
-
     this.isProcessing.set(true);
 
     try {
@@ -366,7 +328,7 @@ export class Splitter {
         rawPdf,
         start,
         end,
-        chunkSize,
+        this.CHUNK_SIZE,
         totalPdfPages,
         projectId
       );

@@ -17,9 +17,9 @@ export class BookSplitter {
     rawPdf: Uint8Array,
     startPage: number,
     endPage: number,
-    chunkSize: number,
-    totalPdfPages: number,
-    projectId: string
+    chunkSize: number = 10,
+    totalPdfPages: number = 1,
+    projectId: string = ''
   ): Promise<{ chapters: Chapter[]; images: Record<string, string> }> {
     // Safely copy rawPdf bytes into a fresh ArrayBuffer
     const originalArrayBuffer = new ArrayBuffer(rawPdf.byteLength);

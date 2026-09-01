@@ -1,4 +1,4 @@
-import { Component, input, model, output, inject, signal, computed, effect, OnDestroy, ElementRef } from '@angular/core';
+import { Component, input, model, output, inject, signal, computed, effect, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-translating-skeleton',
@@ -326,11 +326,23 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                 } @else if (pdfPageImages().length > 0) {
                   <div class="w-full max-h-[700px] rounded-xl border border-zinc-200/80 bg-zinc-200/60 p-4 space-y-4 shadow-inner" [class.overflow-y-auto]="!isAnyModalOpen()" [class.overflow-hidden]="isAnyModalOpen()">
                     @for (imgSrc of pdfPageImages(); track $index) {
-                      <div class="relative bg-white rounded-lg shadow border border-zinc-200/80 overflow-hidden mx-auto max-w-3xl">
+                      @let pageNum = getPdfDisplayPageNum($index);
+                      <div [id]="'chapter-' + chapter().id + '-pdf-page-' + pageNum" class="relative bg-white rounded-lg shadow border border-zinc-200/80 overflow-hidden mx-auto max-w-3xl pdf-page-container transition-all duration-300">
                         <div class="bg-zinc-100/90 px-3 py-1.5 text-[11px] font-medium text-zinc-500 border-b border-zinc-200 flex justify-between items-center">
-                          <span>Trang {{ $index + 1 }} / {{ pdfPageImages().length }}</span>
+                          <span class="font-semibold text-zinc-700 flex items-center gap-1.5">
+                            <mat-icon class="!w-3.5 !h-3.5 !text-[14px] text-zinc-400">menu_book</mat-icon>
+                            Trang {{ pageNum }}
+                          </span>
+                          <button 
+                            type="button"
+                            (click)="syncToTranslatedPage(pageNum)" 
+                            class="px-2.5 py-0.5 text-[11px] font-medium text-indigo-600 bg-indigo-50/90 hover:bg-indigo-600 hover:text-white border border-indigo-200/80 hover:border-indigo-600 rounded-full transition-all flex items-center gap-1 cursor-pointer shadow-2xs"
+                            title="Nhấn để cuộn đến trang {{ pageNum }} ở bản dịch">
+                            <mat-icon class="!w-3 !h-3 !text-[12px]">sync_alt</mat-icon>
+                            <span>Đồng bộ bản dịch</span>
+                          </button>
                         </div>
-                        <img [src]="imgSrc" [alt]="'Trang PDF ' + ($index + 1)" class="w-full h-auto block select-none" loading="lazy" />
+                        <img [src]="imgSrc" [alt]="'Trang PDF ' + pageNum" class="w-full h-auto block select-none" loading="lazy" />
                       </div>
                     }
                   </div>
@@ -351,7 +363,7 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                   </div>
                 } @else if (chapter().translatedText) {
                   <div class="max-h-[700px] pr-2" [class.overflow-y-auto]="!isAnyModalOpen()" [class.overflow-hidden]="isAnyModalOpen()">
-                    <app-safe-html [htmlContent]="renderedTranslatedHtml()" class="w-full text-zinc-900" />
+                    <app-safe-html #translatedSafeHtmlTab (pageClick)="onPageClick($event)" [htmlContent]="renderedTranslatedHtml()" class="w-full text-zinc-900" />
                   </div>
                 } @else if (chapter().status === 'translating') {
                   <app-translating-skeleton />
@@ -390,7 +402,8 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
             </div>
 
             <!-- Fullscreen HTML Content -->
-            <app-safe-html [htmlContent]="renderedTranslatedHtml()" 
+            <app-safe-html #translatedSafeHtmlFs (pageClick)="onPageClick($event)" 
+                           [htmlContent]="renderedTranslatedHtml()" 
                            [fontFamily]="getFontFamily(readerStore.prefs().fontFamily)" 
                            class="w-full text-zinc-900" />
 
@@ -453,11 +466,23 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                 } @else if (pdfPageImages().length > 0) {
                   <div class="w-full h-[calc(100vh-180px)] overflow-y-auto rounded-xl border border-zinc-200/80 bg-zinc-200/60 p-4 space-y-4 shadow-inner">
                     @for (imgSrc of pdfPageImages(); track $index) {
-                      <div class="relative bg-white rounded-lg shadow border border-zinc-200/80 overflow-hidden mx-auto max-w-3xl">
+                      @let pageNum = getPdfDisplayPageNum($index);
+                      <div [id]="'bilingual-pdf-page-' + pageNum" class="relative bg-white rounded-lg shadow border border-zinc-200/80 overflow-hidden mx-auto max-w-3xl pdf-page-container transition-all duration-300">
                         <div class="bg-zinc-100/90 px-3 py-1.5 text-[11px] font-medium text-zinc-500 border-b border-zinc-200 flex justify-between items-center">
-                          <span>Trang {{ $index + 1 }} / {{ pdfPageImages().length }}</span>
+                          <span class="font-semibold text-zinc-700 flex items-center gap-1.5">
+                            <mat-icon class="!w-3.5 !h-3.5 !text-[14px] text-zinc-400">menu_book</mat-icon>
+                            Trang {{ pageNum }}
+                          </span>
+                          <button 
+                            type="button"
+                            (click)="syncToTranslatedPage(pageNum)" 
+                            class="px-2.5 py-0.5 text-[11px] font-medium text-indigo-600 bg-indigo-50/90 hover:bg-indigo-600 hover:text-white border border-indigo-200/80 hover:border-indigo-600 rounded-full transition-all flex items-center gap-1 cursor-pointer shadow-2xs"
+                            title="Nhấn để cuộn đến trang {{ pageNum }} ở bản dịch">
+                            <mat-icon class="!w-3 !h-3 !text-[12px]">sync_alt</mat-icon>
+                            <span>Đồng bộ bản dịch</span>
+                          </button>
                         </div>
-                        <img [src]="imgSrc" [alt]="'Trang PDF ' + ($index + 1)" class="w-full h-auto block select-none" loading="lazy" />
+                        <img [src]="imgSrc" [alt]="'Trang PDF ' + pageNum" class="w-full h-auto block select-none" loading="lazy" />
                       </div>
                     }
                   </div>
@@ -475,7 +500,8 @@ import { SafeHtmlComponent } from '../../../shared/components/safe-html.componen
                 <h4 class="text-xs font-semibold uppercase tracking-wider mb-8 text-zinc-400 text-center flex items-center justify-center gap-2">
                    <mat-icon class="!w-4 !h-4 !text-[16px]">translate</mat-icon> Bản dịch
                 </h4>
-                <app-safe-html [htmlContent]="renderedTranslatedHtml()"
+                <app-safe-html #translatedSafeHtmlBi (pageClick)="onPageClick($event)" 
+                               [htmlContent]="renderedTranslatedHtml()"
                                [fontFamily]="getFontFamily(readerStore.prefs().fontFamily)"
                                class="w-full text-zinc-900" />
               </div>
@@ -666,6 +692,10 @@ export class ChapterItemComponent implements OnDestroy {
     return this.parseMarkdown(text, this.chapter().id + '-csum');
   });
   
+  @ViewChild('translatedSafeHtmlTab') translatedSafeHtmlTab?: SafeHtmlComponent;
+  @ViewChild('translatedSafeHtmlBi') translatedSafeHtmlBi?: SafeHtmlComponent;
+  @ViewChild('translatedSafeHtmlFs') translatedSafeHtmlFs?: SafeHtmlComponent;
+
   pdfPageImages = signal<string[]>([]);
   isLoadingPdfPages = signal<boolean>(false);
 
@@ -954,6 +984,57 @@ export class ChapterItemComponent implements OnDestroy {
   closeBilingualFullscreen() {
     this.isBilingualFullscreen.set(false);
     document.body.style.overflow = '';
+  }
+
+  getPdfDisplayPageNum(index: number): number {
+    const start = this.chapter().startPage;
+    if (start && start > 0) {
+      return start + index;
+    }
+    return index + 1;
+  }
+
+  onPageClick(pageNum: number) {
+    if (this.isBilingualFullscreen()) {
+      const el = document.getElementById('bilingual-pdf-page-' + pageNum);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.classList.add('ring-4', 'ring-indigo-500', 'shadow-2xl', 'scale-[1.01]', 'transition-all');
+        setTimeout(() => {
+          el.classList.remove('ring-4', 'ring-indigo-500', 'shadow-2xl', 'scale-[1.01]');
+        }, 2500);
+      }
+      return;
+    }
+
+    this.activeTab.set('original');
+    setTimeout(() => {
+      const el = document.getElementById(`chapter-${this.chapter().id}-pdf-page-${pageNum}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.classList.add('ring-4', 'ring-indigo-500', 'shadow-2xl', 'scale-[1.01]', 'transition-all');
+        setTimeout(() => {
+          el.classList.remove('ring-4', 'ring-indigo-500', 'shadow-2xl', 'scale-[1.01]');
+        }, 2500);
+      }
+    }, 120);
+  }
+
+  syncToTranslatedPage(pageNum: number) {
+    if (this.isBilingualFullscreen()) {
+      this.translatedSafeHtmlBi?.scrollToPage(pageNum);
+      return;
+    }
+
+    if (this.isFullscreen()) {
+      this.translatedSafeHtmlFs?.scrollToPage(pageNum);
+      return;
+    }
+
+    this.activeTab.set('translation');
+    setTimeout(() => {
+      this.translatedSafeHtmlTab?.scrollToPage(pageNum);
+    }, 120);
   }
 
   prevTranslatedChapterIndex(): number {
