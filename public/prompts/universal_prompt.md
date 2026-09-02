@@ -21,7 +21,7 @@ Dựa trên vai trò và toàn bộ quy tắc đã được nạp trong **System
 Hãy gọi lại và áp dụng tuyệt đối **"Hệ thống Thứ tự Ưu tiên (1-4)"** và **"Quy tắc Giải quyết Xung đột"** trong SI:
 *   **[#1 & #1A]** Ý nghĩa chính xác 100% & Chuẩn hóa thuật ngữ học thuật.
 *   **[#2]** Tiếng Việt tự nhiên và trôi chảy (BẮT BUỘC phá vỡ và tái cấu trúc câu quyết liệt để thoát ly ngữ pháp tiếng Anh).
-*   **[#3]** Bảo toàn cấu trúc thị giác, phân trang đối chiếu 1:1 (`<!-- PAGE_BREAK: X -->`), đa cột liền mạch (CSS Multi-Columns), bảng biểu và hộp định lý.
+*   **[#3]** Bảo toàn cấu trúc thị giác, phân trang đối chiếu 1:1 (`<!-- PAGE_BREAK: X -->`), đa cột liền mạch (CSS Multi-Columns), bảng biểu.
 *   **[#4]** Tính ổn định, chống tràn ngang và khả năng đọc tối ưu của mã HTML.
 </strict_compliance_recall>
 
@@ -33,7 +33,7 @@ Hãy gọi lại và áp dụng tuyệt đối **"Hệ thống Thứ tự Ưu ti
 *   **Công thức Toán học (NẾU CÓ):** Phải dùng cú pháp LaTeX `\(\)` và `\[\]`. BẮT BUỘC nhúng thẻ `<script>` MathJax vào `<head>`. (Giữ nguyên dấu chấm `.` thập phân bên trong block LaTeX).
 *   **TUYỆT ĐỐI KHÔNG** bọc các cú pháp LaTeX (cả `\( \)` và `\[ \]`) bên trong các thẻ HTML như `<code>` hay `<pre>`.
 *   **Tài liệu tham khảo (References):** KHÔNG DỊCH các thành phần nhận diện (Tác giả, Tên sách/báo, Tạp chí, DOI, URL...). Giữ nguyên định dạng gốc.
-*   **Hình ảnh:** Thẻ `<img>` phải có `src` khớp chính xác ID, bọc trong `<figure>` và `<figcaption>` dịch chuẩn xác.
+*   **Hình ảnh:** Thẻ `<img>` phải có `src` khớp chính xác ID, bọc trong `<figure>` và `<figcaption>` dịch chuẩn xác các mô tả của ảnh.
 *   **Xử lý "câu gãy" do PDF (Line breaks):** Tự động nhận diện và ghép nối các câu bị ngắt dòng vật lý trong cùng đoạn thành câu trôi chảy. Nếu câu vắt dòng qua trang mới, tiếp tục viết tự nhiên sau thẻ `<!-- PAGE_BREAK: X -->`.
 *   **Tối ưu thiết kế cho màn hình lớn**: Bản dịch cuối cùng có khả năng đọc được trên nhiều kích cỡ màn hình khác nhau, nhưng kích cỡ màn hình lớn (trên laptop/desktop) vẫn là ưu tiên cao nhất.
 </technical_checklist>
@@ -59,5 +59,6 @@ Trước khi xuất kết quả cuối cùng, tự kiểm tra nội bộ:
 <output_constraints>
 **[F] ĐỊNH DẠNG ĐẦU RA BẮT BUỘC (STRICT OUTPUT BOUNDARY):**
 *   Chỉ trả về MÃ HTML THÔ.
-*   Bắt đầu chính xác bằng `<!DOCTYPE html>` và kết thúc bằng `</html>`.
+*   KHÔNG bọc toàn bộ đầu ra trong khối \`\`\`html hoặc \`\`\`. Hãy trả về trực tiếp chuỗi HTML thuần.
+*   Bắt đầu chính xác bằng `<!DOCTYPE html>` và kết thúc bằng `</html>`. 
 </output_constraints>
