@@ -1,5 +1,4 @@
 # 1987-Layout
-
 Dịch file PDF dài từ tiếng Anh sang tiếng Việt. Có khả năng giữ lại ảnh & công thức toán. Bản dịch trả về là định dạng HTML (web), có thể dễ dàng chia sẻ và đọc được trên bất cứ trình duyệt nào. Công cụ này nếu có mức độ hoàn thiện cao sẽ rất thú vị, vì khả năng dịch dài, đảm bảo định dạng, và dịch hay là 3 thứ khó khăn hàng đầu đối với một công cụ dịch tự động.
 
 - **Link app**: https://aistudio.google.com/apps/9333e4c6-6b7a-442a-80ad-7b0a263c44ff?showPreview=true&showAssistant=true&fullscreenApplet=true (sử dụng được Key miễn phí để dịch);
@@ -50,14 +49,14 @@ Công cụ này có thể được sử dụng cho mục đích nghiên cứu v�
 Ứng dụng được phát triển tối ưu hoàn toàn ở phía Client-side (Trình duyệt). Một số thư viện quan trọng mà ứng dụng này dùng:
 
 ### 1. Khung Phát Triển Chính (Core Engine)
-*   **[Angular](https://angular.dev/)**: Khung ứng dụng web đơn trang (SPA).
+*   **[Angular](https://angular.dev/)**: Phát triển bởi Google. Lõi chính của ứng dụng.
 
 ### 2. Giao Diện
 *   **[Tailwind CSS](https://tailwindcss.com/)**: Framework CSS hỗ trợ xây dựng giao diện.
 *   **[Angular Material Icons](https://material.angular.io/)**: Cung cấp hệ thống icon.
 
 ### 3. Xử Lý Tài Liệu
-*   **[Mozilla PDF.js](https://mozilla.github.io/pdf.js/)** – Phát triển bởi Mozilla. Thư viện chạy hoàn toàn trên Client-side, giúp trích xuất hình ảnh trong file PDF.
+*   **[Mozilla PDF.js](https://mozilla.github.io/pdf.js/)**: Phát triển bởi Mozilla. Thư viện chạy hoàn toàn trên Client-side, giúp trích xuất hình ảnh trong file PDF.
 *   **[pdf-lib](https://pdf-lib.js.org/)**: Dùng để chia tách PDF thành các chunk (đoạn) để dễ xử lý hơn.
 *   **[Marked & marked-footnote](https://marked.js.org/)**: Chuyển Markdown sang cấu trúc HTML, có hỗ trợ ghi chú chân trang (footnotes).
 *   **[Turndown](https://github.com/mixmark-io/turndown)**: Chuyển đổi ngược các định dạng HTML thành cú pháp Markdown.
