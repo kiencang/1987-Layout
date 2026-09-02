@@ -184,19 +184,60 @@ export class Translator {
 
     try {
       const zip = new JSZip();
+      
+      const bookTitle = this.store.bookTitle() || 'Ban_dich_sach';
+      const sanitizedBookTitle = bookTitle.replace(/[\\/:*?"<>|]/g, '_');
+
+      // 1. Thêm các file HTML rời vào thư mục con
       chapters.forEach((chapter, index) => {
         const sanitizedTitle = chapter.title.replace(/[\\/:*?"<>|]/g, '_');
         const filename = `${String(index + 1).padStart(2, '0')} - ${sanitizedTitle}.html`;
-        zip.file(filename, chapter.translatedText || '');
+        zip.file(`chunks/${filename}`, chapter.translatedText || '');
       });
+
+      // 2. Tạo file Master HTML gộp tất cả
+      let masterBodyContent = '';
+      
+      chapters.forEach((chapter, index) => {
+        let html = chapter.translatedText || '';
+        const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+        let bodyContent = bodyMatch ? bodyMatch[1] : html;
+        
+        if (index > 0) {
+           masterBodyContent += `\n<div style="page-break-before: always; break-before: page;"></div>\n`;
+        }
+        masterBodyContent += bodyContent;
+      });
+
+      let headContent = '<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>' + sanitizedBookTitle + '</title>';
+      const headMatch = (chapters[0].translatedText || '').match(/<head[^>]*>([\s\S]*)<\/head>/i);
+      if (headMatch) {
+         headContent = headMatch[1];
+      }
+
+      let bodyAttr = '';
+      const bodyTagMatch = (chapters[0].translatedText || '').match(/<body([^>]*)>/i);
+      if (bodyTagMatch) {
+         bodyAttr = bodyTagMatch[1];
+      }
+
+      const masterHtml = `<!DOCTYPE html>
+<html lang="vi">
+<head>
+${headContent}
+</head>
+<body${bodyAttr}>
+${masterBodyContent}
+</body>
+</html>`;
+
+      // Lưu file HTML tổng ra thư mục gốc của zip
+      zip.file(`${sanitizedBookTitle}_Toan_tap.html`, masterHtml);
 
       const blob = await zip.generateAsync({ type: 'blob' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      
-      const bookTitle = this.store.bookTitle() || 'Ban_dich_sach';
-      const sanitizedBookTitle = bookTitle.replace(/[\\/:*?"<>|]/g, '_');
       a.download = `1987-Layout_${sanitizedBookTitle}_ban_dich.zip`;
       
       document.body.appendChild(a);
