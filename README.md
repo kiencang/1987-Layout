@@ -7,14 +7,14 @@ Dịch file PDF dài từ tiếng Anh sang tiếng Việt. Có khả năng giữ
 
 Chất lượng của 2 bản trên như nhau, chỉ khác là bản trên AI Studio thì tận dụng được API Key miễn phí của Gemini.
 
-Ngoài ra, chương trình sử dụng SI/Prompt đã được tối ưu sẵn ở dự án này: https://github.com/kiencang/SI-Prompt-1987-Layout
+Ngoài ra, chương trình sử dụng SI/Prompt đã được tối ưu sẵn ở dự án này (cùng tác giả): https://github.com/kiencang/SI-Prompt-1987-Layout
 
 <p align="center">
   <img src="images/buoc-5.png" alt="Dịch thành công">
    <br><em>Giao diện bước 5, bước cuối trong khi dịch.</em>
 </p>
 
-**Lưu ý**: Công cụ này cần các file PDF đầu vào là dạng "tiêu chuẩn" (đại khái là có thể dùng chuột copy được văn bản) thì nó mới tách ảnh trong bản gốc dễ dàng được. Nói cách khác, các file PDF scan nằm ngoài khả năng của công cụ này. Với file PDF scan, cách khả thi nhất là sử dụng các ứng dụng chuyển đổi định dạng mạnh như PaddleOCR (https://aistudio.baidu.com/paddleocr) để chuyển nó thành markdown (vẫn giữ được ảnh), rồi dùng công cụ silaBook (https://github.com/kiencang/silaBook/) để dịch.
+**Lưu ý**: Công cụ này cần các file PDF đầu vào là dạng "tiêu chuẩn" (đại khái là có thể dùng chuột copy được văn bản) thì nó mới tách ảnh trong bản gốc dễ dàng được. Nói cách khác, các file PDF scan nằm ngoài khả năng của công cụ này. Với file PDF scan, cách khả thi nhất là sử dụng các ứng dụng chuyển đổi định dạng mạnh như [PaddleOCR](https://aistudio.baidu.com/paddleocr) hoặc [MinerU](https://mineru.net/) để chuyển nó thành markdown (vẫn giữ được ảnh), rồi dùng công cụ [silaBook](https://github.com/kiencang/silaBook/) để dịch.
 
 ---
 
@@ -31,16 +31,15 @@ Nếu mục đích của bạn là dịch các cuốn sách PDF khoa học dài 
 ## Hướng dẫn sử dụng
 Về cơ bản ứng dụng 1987-Layout cũng có cách sử dụng khá tương đồng với silaBook. 
 - **Bước 1**: Nhập tên sách và tên tác giả. Nhập chính xác tên sách & tác giả giúp công cụ dịch tốt hơn;
-- **Bước 2**: Chia sách thành các phần nhỏ. Đây là điểm khác biệt lớn nhất với silaBook. Với 1987-Layout, hiện chúng ta chia đều sách thành các mốc cố định, mặc định là 20 trang một phần, và ngưỡng điều chỉnh là 10 - 25 trang. Chia nhỏ hơn 10 sách sẽ quá vụn, còn lớn hơn 25 khả năng vượt qua ngưỡng phản hồi của AI sẽ tăng lên (Gemini hiện chỉ cho phép trả về 65 ngàn token kết quả đầu ra);
+- **Bước 2**: Chia sách thành các phần nhỏ. Đây là điểm khác biệt lớn nhất với silaBook. Với 1987-Layout, hiện chúng ta chia đều sách thành các mốc cố định, mặc định là 10 trang một phần, đây là ngưỡng tốt để AI dịch có chất lượng mà vẫn đảm bảo được định dạng của bản dịch tương đồng cao với bản gốc;
 - **Bước 3**: Nhận diện Đại từ. Vì 1987-Layout tập trung vào sách khoa học, phần này có thể bỏ qua và không quan trọng lắm. Tuy nhiên ứng dụng vẫn giữ lại, vì có một số dạng sách khoa học vẫn tồn tại ở dạng chuyện kể, với kiểu trình bày này, đại từ có thể vẫn có nhiều và phong phú;
 - **Bước 4**: Nhận diện Thuật ngữ/Từ khó. Một mục quan trọng đối với thể loại sách khoa học, và chắc chắn bạn cần triển khai;
-- **Bước 5**: Dịch, mặc định công cụ sử dụng model Pro để dịch. Model này mạnh hơn Flash về khả năng xử lý chính xác, do vậy quan trọng để đảm bảo kết quả dịch tốt hơn, do đầu vào là PDF tương đối phức tạp (đầu vào của silaBook là dạng markdown, đơn giản hơn và có thể dùng Flash vẫn có chất lượng tượng đối tốt). Ngoài ra ở bước này bạn có thể chọn `Phong cách dịch`, có 3 phong cách cơ bản, mặc định là `Khoa học nói chung`, nó phù hợp với hầu hết các tài liệu khoa học có công thức toán. Với tài liệu nào có dạng toán học phức tạp, gồm cả sơ đồ, biểu đồ toán nên chọn phong cách dịch `Toán chuyên ngành`, còn tài liệu nào đơn thuần là dạng báo cáo, không sử dụng công thức toán phức tạp trong trình bày hãy sử dụng phong cách `Khoa học xã hội`;
+- **Bước 5**: Dịch, mặc định công cụ sử dụng model Pro để dịch. Model này mạnh hơn Flash về khả năng xử lý chính xác, do vậy quan trọng để đảm bảo kết quả dịch tốt hơn, do đầu vào là PDF tương đối phức tạp (đầu vào của silaBook là dạng markdown, đơn giản hơn và có thể dùng Flash vẫn có chất lượng tượng đối tốt).
 
 ## Các giới hạn
-
 Công cụ này nhìn chung hoạt động tốt với các cấu trúc trình bày có độ phức tạp từ trung bình đến khá, nếu tài liệu gốc có độ phức tạp quá cao, mức độ tái tạo của nó cũng có những hạn chế nhất định.
 
-Với những cấu trúc phức tạp, việc quay trở về phương pháp dịch thông qua định dạng markdown lại là giải pháp khả thi, các công cụ mạnh để xử lý PDF như PaddleOCR hoặc MinerU sẽ giúp phân tích file PDF cực kỳ chính xác bao gồm phân biệt rõ các ảnh & vị trí chính xác của nó. Tóm lại với file PDF quá phức tạp, ít nhất ở thời điểm hiện tại, bạn vẫn nên dùng markdown + silaBook (tiền thân của 1987-Layout) để dịch.
+Với những cấu trúc phức tạp, việc quay trở về phương pháp dịch thông qua định dạng **markdown** lại là giải pháp khả thi, các công cụ mạnh để xử lý PDF như PaddleOCR hoặc MinerU sẽ giúp phân tích file PDF rất tốt, bao gồm phân biệt rõ các ảnh & vị trí chính xác của nó. Tóm lại với file PDF quá phức tạp, ít nhất ở thời điểm hiện tại, bạn vẫn nên dùng markdown + silaBook (tiền thân của 1987-Layout) để dịch.
 
 ## Tuyên bố từ chối trách nhiệm
 Công cụ này có thể được sử dụng cho mục đích nghiên cứu và học tập cá nhân.
@@ -48,7 +47,6 @@ Công cụ này có thể được sử dụng cho mục đích nghiên cứu v�
 1987-Layout cũng như người phát triển nó không đưa ra bất kỳ bảo đảm rõ ràng hay ngụ ý nào, cũng như không tuyên bố rằng công cụ sẽ vận hành hoàn hảo, chính xác hoặc cập nhật. Người phát triển sẽ không chịu trách nhiệm cho bất kỳ tổn thất hay thiệt hại nào phát sinh trực tiếp hoặc gián tiếp liên quan đến hoặc phát sinh từ việc sử dụng công cụ này.
 
 ## Ghi công
-
 Ứng dụng được phát triển tối ưu hoàn toàn ở phía Client-side (Trình duyệt). Một số thư viện quan trọng mà ứng dụng này dùng:
 
 ### 1. Khung Phát Triển Chính (Core Engine)
